@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "backend": "backend/index.js",
-    "start": "node backend/index.js"
+    "backend": "nodemon backend/index.js",
+    "start": "node backend/index.js",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend"
   },
   "author": "",
   "license": "ISC",
