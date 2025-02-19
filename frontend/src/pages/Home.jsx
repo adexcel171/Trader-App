@@ -30,7 +30,7 @@ const Home = () => {
         {cryptos?.map((crypto, index) => {
           const message = `Hello%2C%20I%20want%20to%20buy%20${encodeURIComponent(
             crypto.name
-          )}%20at%20the%20rate%20of%20$${crypto.rate}`;
+          )}%20at%20the%20rate%20of%20₦${crypto.rate}`;
 
           return (
             <motion.div

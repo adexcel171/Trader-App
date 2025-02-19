@@ -100,7 +100,7 @@ const Navbar = () => {
           {/* Menu Container */}
           <div className="fixed inset-y-0 right-0 w-64 bg-gray-800 shadow-lg">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-              <span className="text-black text-lg font-bold">Trader</span>
+              <span className="text-white text-lg font-bold">Trader</span>
               <button
                 onClick={toggleMenu}
                 className="text-gray-400 hover:text-black focus:outline-none"
@@ -126,31 +126,31 @@ const Navbar = () => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               <a
                 href="/dashboard"
-                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
               >
                 Dashboard
               </a>
               <a
                 href="/markets"
-                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
               >
                 Markets
               </a>
               <a
                 href="/portfolio"
-                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
               >
                 Portfolio
               </a>
               <a
                 href="/wallet"
-                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
               >
                 Wallet
               </a>
               <a
                 href="/profile"
-                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                className="text-white hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Profile
               </a>
