@@ -18,15 +18,12 @@ app.use(
     allowedHeaders: "Content-Type, Authorization",
   })
 );
+app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
-// Ensure proper static serving path
-const frontendPath = path.join(__dirname, "../frontend/dist");
-app.use(express.static(frontendPath));
-
+// Serve index.html for all other routes (for SPA)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
-
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
