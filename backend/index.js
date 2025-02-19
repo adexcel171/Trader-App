@@ -9,14 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// app.use(
+//   cors({
+//     origin: "https://trader-appp.onrender.com",
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     credentials: true, // enable cookies
+//     optionsSuccessStatus: 204,
+//     allowedHeaders: "Content-Type, Authorization",
+//   })
+// );
 app.use(
-  cors({
-    origin: "https://trader-appp.onrender.com",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // enable cookies
-    optionsSuccessStatus: 204,
-    allowedHeaders: "Content-Type, Authorization",
-  })
+  cors({ origin: "https://trader-appp.onrender.com", credentials: true })
 );
 // Serve static files from the frontend build folder
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
