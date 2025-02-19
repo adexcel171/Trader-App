@@ -5,8 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "backend": "node index.js",
-    "start": "node index.js",
-    "dev": "concurrently \"npm run frontend\" \"npm run backend"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
