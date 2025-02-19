@@ -19,10 +19,8 @@ app.use(
     allowedHeaders: "Content-Type, Authorization",
   })
 );
-// Serve the frontend `dist` folder
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Handle React Router routes by always returning `index.html`
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
