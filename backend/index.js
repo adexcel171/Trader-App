@@ -22,7 +22,8 @@ mongoose
 app.use("/api/cryptos", require("./routes/cryptoRoutes"));
 
 // ✅ Define Frontend Path Correctly
-const frontendPath = path.join(__dirname, "../frontend/dist/index.html");
+// const frontendPath = path.join(__dirname, "../frontend/dist/index.html");
+const frontendPath = path.join(__dirname, "../frontend/dist");
 
 // ✅ Serve React Frontend **Only in Production**
 if (process.env.NODE_ENV === "production") {
