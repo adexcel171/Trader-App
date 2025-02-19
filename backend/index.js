@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -19,13 +18,16 @@ app.use(
     allowedHeaders: "Content-Type, Authorization",
   })
 );
-const __dirname = path.resolve();
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// Ensure proper static serving path
+const frontendPath = path.join(__dirname, "../frontend/dist");
+app.use(express.static(frontendPath));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
+
+// Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
