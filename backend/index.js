@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
+const path = require("path");
 
 const app = express();
 
@@ -17,7 +18,13 @@ app.use(
     allowedHeaders: "Content-Type, Authorization",
   })
 );
+// Serve static files from the frontend build folder
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
+// Handle client-side routing
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
