@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "backend": "node backend/index.js",
+    "backend": "node index.js",
     "start": "node index.js",
     "dev": "concurrently \"npm run frontend\" \"npm run backend"
   },
