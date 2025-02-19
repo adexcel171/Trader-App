@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "install-frontend": "cd frontend && npm install",
+    "build-frontend": "cd frontend && npm run build",
+    "install-backend": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "deploy": "npm run install-frontend && npm run build-frontend && npm run install-backend"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
