@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const cryptoApi = createApi({
   reducerPath: "cryptoApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://trader-app-a9pn.onrender.com/api",
+    baseUrl: "http://localhost:5000/api",
   }),
   tagTypes: ["Crypto"],
   endpoints: (builder) => ({
