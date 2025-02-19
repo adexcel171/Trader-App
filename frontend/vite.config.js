@@ -1,11 +1,14 @@
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react()],
+  plugins: [tailwindcss(), react()], // Remove tailwindcss() since Tailwind works via `postcss.config.js`
   server: {
+    proxy: {
+      "/api": "http://localhost:5000",
+    },
     historyApiFallback: true, // Enable client-side routing
   },
   preview: {
