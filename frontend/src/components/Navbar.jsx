@@ -8,12 +8,12 @@ const Navbar = () => {
   };
 
   return (
-    <nav className=" bg-gradient-to-r from-gray-900 to-gray-600 text-white p-4 shadow-lg">
+    <nav className=" bg-gradient-to-r from-white to-gray-300 text-black p-4 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="text-white text-2xl font-bold">
+            <a href="/" className="text-black text-2xl font-bold">
               Trader
             </a>
           </div>
@@ -23,7 +23,7 @@ const Navbar = () => {
             <button
               onClick={toggleMenu}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-black hover:bg-gray-700 focus:outline-none"
             >
               <svg
                 className="h-6 w-6"
@@ -56,31 +56,31 @@ const Navbar = () => {
           <div className="hidden md:flex md:items-center md:space-x-4">
             <a
               href="/dashboard"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium"
+              className="text-black hover:bg-gray-700 hover:text-black px-3 py-2 rounded-md text-md font-medium"
             >
               Dashboard
             </a>
             <a
               href="/markets"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium"
+              className="text-black hover:bg-gray-700 hover:text-black px-3 py-2 rounded-md text-md font-medium"
             >
               Markets
             </a>
             <a
               href="/portfolio"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium"
+              className="text-black hover:bg-gray-700 hover:text-black px-3 py-2 rounded-md text-md font-medium"
             >
               Portfolio
             </a>
             <a
               href="/wallet"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium"
+              className="text-black hover:bg-gray-700 hover:text-black px-3 py-2 rounded-md text-md font-medium"
             >
               Wallet
             </a>
             <a
               href="/profile"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium"
+              className="text-black hover:bg-gray-700 hover:text-black px-3 py-2 rounded-md text-md font-medium"
             >
               Profile
             </a>
@@ -100,10 +100,10 @@ const Navbar = () => {
           {/* Menu Container */}
           <div className="fixed inset-y-0 right-0 w-64 bg-gray-800 shadow-lg">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-              <span className="text-white text-lg font-bold">Trader</span>
+              <span className="text-black text-lg font-bold">Trader</span>
               <button
                 onClick={toggleMenu}
-                className="text-gray-400 hover:text-white focus:outline-none"
+                className="text-gray-400 hover:text-black focus:outline-none"
               >
                 <svg
                   className="h-6 w-6"
@@ -126,31 +126,31 @@ const Navbar = () => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               <a
                 href="/dashboard"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Dashboard
               </a>
               <a
                 href="/markets"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Markets
               </a>
               <a
                 href="/portfolio"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Portfolio
               </a>
               <a
                 href="/wallet"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Wallet
               </a>
               <a
                 href="/profile"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                className="text-black hover:bg-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
               >
                 Profile
               </a>
