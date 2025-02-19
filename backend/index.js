@@ -9,25 +9,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// app.use(
-//   cors({
-//     origin: "https://trader-appp.onrender.com",
-//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//     credentials: true, // enable cookies
-//     optionsSuccessStatus: 204,
-//     allowedHeaders: "Content-Type, Authorization",
-//   })
-// );
 app.use(
-  cors({ origin: "https://trader-appp.onrender.com", credentials: true })
+  cors({
+    origin: "http://localhost:5173",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // enable cookies
+    optionsSuccessStatus: 204,
+    allowedHeaders: "Content-Type, Authorization",
+  })
 );
-// Serve static files from the frontend build folder
+
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Handle client-side routing
+// Handle SPA routing (e.g., React, Vue)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
+
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
