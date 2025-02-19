@@ -19,14 +19,12 @@ app.use(
     allowedHeaders: "Content-Type, Authorization",
   })
 );
-
-// Serve static files from frontend/dist
 const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
-// Handle all other routes by serving index.html
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 mongoose
   .connect(process.env.MONGODB_URI, {
