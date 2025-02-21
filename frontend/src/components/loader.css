@@ -1,0 +1,38 @@
+/* Optimized Spinner */
+.loader-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid transparent;
+  border-top-color: #6366f1; /* Primary color */
+  border-right-color: #ec4899; /* Secondary color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Smooth progress bar animation */
+.loader-progress {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #6366f1, #ec4899);
+  animation: progress 1.5s infinite ease-in-out;
+  will-change: transform;
+}
+
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

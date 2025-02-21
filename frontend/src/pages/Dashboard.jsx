@@ -5,9 +5,11 @@ import {
   useUpdateCryptoMutation,
   useDeleteCryptoMutation,
 } from "../services/cryptoApi";
+import Loader from "../components/Loader";
 
 const Dashboard = () => {
   const [formData, setFormData] = useState({ name: "", rate: "" });
+  const [selectedCryptoId, setSelectedCryptoId] = useState(null); // Track selected crypto for update
   const { data: cryptos, isLoading } = useGetCryptosQuery();
   const [addCrypto] = useAddCryptoMutation();
   const [updateCrypto] = useUpdateCryptoMutation();
@@ -21,10 +23,11 @@ const Dashboard = () => {
     }
   };
 
-  const handleUpdate = async (cryptoId) => {
-    if (formData.name && formData.rate) {
-      await updateCrypto({ id: cryptoId, ...formData });
+  const handleUpdate = async () => {
+    if (selectedCryptoId && formData.name && formData.rate) {
+      await updateCrypto({ id: selectedCryptoId, ...formData });
       setFormData({ name: "", rate: "" }); // Clear form after update
+      setSelectedCryptoId(null); // Reset selected crypto
     }
   };
 
@@ -32,12 +35,23 @@ const Dashboard = () => {
     await deleteCrypto(cryptoId);
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  const handleEdit = (crypto) => {
+    setFormData({ name: crypto.name, rate: crypto.rate });
+    setSelectedCryptoId(crypto._id); // Set the selected crypto ID
+  };
+
+  if (isLoading)
+    return (
+      <div>
+        {" "}
+        <Loader />{" "}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
-      <div className=" bg-gradient-to-r from-green-500 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
+      <div className="bg-gradient-to-r from-green-500 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
         <p className="text-lg mt-2">Manage your crypto assets with ease</p>
       </div>
@@ -63,12 +77,23 @@ const Dashboard = () => {
             value={formData.rate}
             onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
           />
-          <button
-            type="submit"
-            className="w-full p-3 3 bg-gradient-to-r from-green-500 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-          >
-            Add Crypto
-          </button>
+          <div className="flex space-x-2">
+            <button
+              type="submit"
+              className="w-full p-3 bg-gradient-to-r from-green-500 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+            >
+              Add Crypto
+            </button>
+            {selectedCryptoId && (
+              <button
+                type="button"
+                onClick={handleUpdate}
+                className="w-full p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+              >
+                Update Crypto
+              </button>
+            )}
+          </div>
         </div>
       </form>
 
@@ -84,20 +109,10 @@ const Dashboard = () => {
             <div className="mt-4 flex space-x-2">
               {/* Edit Button */}
               <button
-                onClick={() =>
-                  setFormData({ name: crypto.name, rate: crypto.rate })
-                }
+                onClick={() => handleEdit(crypto)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
               >
                 Edit
-              </button>
-
-              {/* Update Button */}
-              <button
-                onClick={() => handleUpdate(crypto._id)}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all"
-              >
-                Update
               </button>
 
               {/* Delete Button */}
