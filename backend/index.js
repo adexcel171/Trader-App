@@ -44,10 +44,11 @@ app.get("*", (req, res) => {
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendPath));
 
-  // ✅ Handle React Routes **without affecting API routes**
   app.get("*", (req, res) => {
     if (!req.path.startsWith("/api")) {
       res.sendFile(path.join(frontendPath, "index.html"));
+    } else {
+      res.status(404).json({ message: "API route not found" });
     }
   });
 }
