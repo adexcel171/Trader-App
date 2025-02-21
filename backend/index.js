@@ -6,17 +6,9 @@ const path = require("path");
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://cryptomarket-n3eh.onrender.com",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // enable cookies
-    optionsSuccessStatus: 204,
-    allowedHeaders: "Content-Type, Authorization",
-  })
-);
 
 // Connect to MongoDB
 mongoose
@@ -30,28 +22,19 @@ mongoose
 // API routes
 app.use("/api/cryptos", require("./routes/cryptoRoutes"));
 
-// ✅ Define Frontend Path Correctly
-// const frontendPath = path.join(__dirname, "../frontend/dist/index.html");
-const frontendPath = path.join(__dirname, "./frontend/dist");
-
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
-
-// ✅ Serve React Frontend **Only in Production**
+// ✅ Serve React Frontend in Production
 if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
 
+  // ✅ Handle React Routes Properly
   app.get("*", (req, res) => {
     if (!req.path.startsWith("/api")) {
       res.sendFile(path.join(frontendPath, "index.html"));
-    } else {
-      res.status(404).json({ message: "API route not found" });
     }
   });
 }
 
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
