@@ -15,10 +15,10 @@ const Navbar = () => {
           <div className="flex-shrink-0 flex items-center">
             <a
               href="/"
-              className="text-white text-2xl font-bold flex items-center"
+              className="text-white font-bold text-2xl font-bold flex items-center"
             >
               {/* <img src="/logo.png" alt="Trader Logo" className="h-8 w-8 mr-2" /> */}
-              CRYPTO TRADER
+              BUY CRYPTO
             </a>
           </div>
 
@@ -110,7 +110,7 @@ const Navbar = () => {
                   alt="Trader Logo"
                   className="h-8 w-8 mr-2"
                 /> */}
-                CRYPTO TRADER
+                BUY CRYPTO
               </span>
               <button
                 onClick={toggleMenu}
