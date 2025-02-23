@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Loader from "../components/Loader";
+import Swal from "sweetalert2";
 
 const Home = () => {
   const { data: cryptos, isLoading, isError } = useGetCryptosQuery();
@@ -50,6 +51,30 @@ const Home = () => {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       return 0;
     });
+
+  const handleBuyClick = (cryptoName) => {
+    Swal.fire({
+      title: "Buy Cryptocurrency",
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="Coin Name" value="${cryptoName}" readonly>` +
+        `<input id="swal-input2" class="swal2-input" placeholder="Rate">`,
+      focusConfirm: false,
+      preConfirm: () => {
+        return [
+          document.getElementById("swal-input1").value,
+          document.getElementById("swal-input2").value,
+        ];
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const [coinName, rate] = result.value;
+        const message = `Hello%2C%20I%20want%20to%20buy%20${encodeURIComponent(
+          coinName
+        )}%20at%20the%20rate%20of%20₦${rate}`;
+        window.open(`${adminWhatsAppBase}${message}`, "_blank");
+      }
+    });
+  };
 
   if (isLoading)
     return (
@@ -137,7 +162,7 @@ const Home = () => {
       {/* Crypto Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCryptos?.map((crypto, index) => {
-          const message = `Hello%2C%20I%20want%20to%20buy%20${encodeURIComponent(
+          const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
             crypto.name
           )}%20at%20the%20rate%20of%20₦${crypto.rate}`;
 
@@ -188,14 +213,24 @@ const Home = () => {
               </div>
 
               {/* Buy Now Button */}
-              <a
-                href={adminWhatsAppBase + message}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 w-full inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
-              >
-                Buy Now
-              </a>
+              <div className="flex justify-center items-center">
+                <button
+                  onClick={() => handleBuyClick(crypto.name)}
+                  className="mt-6 mx-3.5 w-[150px]  inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                >
+                  Buy Now
+                </button>
+
+                {/* Sell Now Button */}
+                <a
+                  href={adminWhatsAppBase + message}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 w-[150px] mx-3  inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                >
+                  Sell Now
+                </a>
+              </div>
             </motion.div>
           );
         })}

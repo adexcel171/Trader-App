@@ -6,10 +6,12 @@ import {
   useDeleteCryptoMutation,
 } from "../services/cryptoApi";
 import Loader from "../components/Loader";
+import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
   const [formData, setFormData] = useState({ name: "", rate: "" });
-  const [selectedCryptoId, setSelectedCryptoId] = useState(null); // Track selected crypto for update
   const { data: cryptos, isLoading } = useGetCryptosQuery();
   const [addCrypto] = useAddCryptoMutation();
   const [updateCrypto] = useUpdateCryptoMutation();
@@ -18,40 +20,86 @@ const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.name && formData.rate) {
-      await addCrypto(formData);
-      setFormData({ name: "", rate: "" });
+      try {
+        await addCrypto(formData).unwrap();
+        setFormData({ name: "", rate: "" });
+        toast.success("Crypto added successfully!");
+      } catch (error) {
+        toast.error("Failed to add crypto.");
+      }
     }
   };
 
-  const handleUpdate = async () => {
-    if (selectedCryptoId && formData.name && formData.rate) {
-      await updateCrypto({ id: selectedCryptoId, ...formData });
-      setFormData({ name: "", rate: "" }); // Clear form after update
-      setSelectedCryptoId(null); // Reset selected crypto
+  const handleUpdate = async (cryptoId, updatedData) => {
+    if (cryptoId && updatedData.name && updatedData.rate) {
+      try {
+        await updateCrypto({ id: cryptoId, ...updatedData }).unwrap();
+        toast.success("Crypto updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update crypto.");
+      }
     }
   };
 
   const handleDelete = async (cryptoId) => {
-    await deleteCrypto(cryptoId);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteCrypto(cryptoId).unwrap();
+        toast.success("Crypto deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete crypto.");
+      }
+    }
   };
 
   const handleEdit = (crypto) => {
-    setFormData({ name: crypto.name, rate: crypto.rate });
-    setSelectedCryptoId(crypto._id); // Set the selected crypto ID
+    Swal.fire({
+      title: "Edit Crypto",
+      html: `
+        <input id="swal-input1" class="swal2-input" value="${crypto.name}" placeholder="Crypto Name">
+        <input id="swal-input2" class="swal2-input" value="${crypto.rate}" placeholder="Rate">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Update",
+      preConfirm: () => {
+        return {
+          name: document.getElementById("swal-input1").value,
+          rate: document.getElementById("swal-input2").value,
+        };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedData = result.value;
+        handleUpdate(crypto._id, updatedData); // Pass the updated data directly
+      }
+    });
   };
 
   if (isLoading)
     return (
       <div>
-        {" "}
-        <Loader />{" "}
+        <Loader />
       </div>
     );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
+      <div className="bg-gradient-to-r text-center from-green-500 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
         <p className="text-lg mt-2">Manage your crypto assets with ease</p>
       </div>
@@ -59,41 +107,30 @@ const Dashboard = () => {
       {/* Add Crypto Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-md mb-8"
+        className="bg-white md:flex flex-col justify-between items-center space-x-2 p-6 rounded-xl shadow-md mb-8"
       >
-        <h2 className="text-2xl font-bold mb-4">Add New Crypto</h2>
-        <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-4">Add New Crypto</h2>
+        <div className="space-y-4 ">
           <input
             type="text"
             placeholder="Crypto Name"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border  md:w-[500px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <input
             type="number"
             placeholder="Rate"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border md:w-[500px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.rate}
             onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
           />
-          <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="w-full p-3 bg-gradient-to-r from-green-500 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-            >
-              Add Crypto
-            </button>
-            {selectedCryptoId && (
-              <button
-                type="button"
-                onClick={handleUpdate}
-                className="w-full p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-              >
-                Update Crypto
-              </button>
-            )}
-          </div>
+          <button
+            type="submit"
+            className="w-full p-3 md:w-[500px] bg-gradient-to-r from-green-500 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+          >
+            Add Crypto
+          </button>
         </div>
       </form>
 
@@ -102,7 +139,7 @@ const Dashboard = () => {
         {cryptos?.map((crypto) => (
           <div
             key={crypto._id}
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+            className="bg-white flex flex-col justify-center items-center p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
           >
             <h3 className="text-xl font-bold text-gray-800">{crypto.name}</h3>
             <p className="text-gray-600 mt-2">Rate: ${crypto.rate}</p>
