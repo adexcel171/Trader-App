@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useGetCryptosQuery,
   useAddCryptoMutation,
@@ -9,6 +9,9 @@ import Loader from "../components/Loader";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector, useDispatch } from "react-redux"; // Import useDispatch
+import { useNavigate } from "react-router-dom";
+import { logout } from "../services/authSlice"; // Import the logout action
 
 const Dashboard = () => {
   const [formData, setFormData] = useState({ name: "", rate: "" });
@@ -16,6 +19,28 @@ const Dashboard = () => {
   const [addCrypto] = useAddCryptoMutation();
   const [updateCrypto] = useUpdateCryptoMutation();
   const [deleteCrypto] = useDeleteCryptoMutation();
+
+  const { userInfo } = useSelector((state) => state.auth);
+  const dispatch = useDispatch(); // Initialize dispatch
+  const navigate = useNavigate();
+
+  // Redirect if user is not logged in or not an admin
+  useEffect(() => {
+    if (!userInfo || !userInfo.isAdmin) {
+      navigate("/login"); // Redirect to login page
+    }
+  }, [userInfo, navigate]);
+
+  // Show loading spinner while checking authentication
+  if (!userInfo || !userInfo.isAdmin) {
+    return <Loader />; // Or a custom "Access Denied" message
+  }
+
+  // Logout function
+  const handleLogout = () => {
+    dispatch(logout()); // Dispatch the logout action
+    navigate("/login"); // Redirect to login page
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,17 +106,14 @@ const Dashboard = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const updatedData = result.value;
-        handleUpdate(crypto._id, updatedData); // Pass the updated data directly
+        handleUpdate(crypto._id, updatedData);
       }
     });
   };
 
-  if (isLoading)
-    return (
-      <div>
-        <Loader />
-      </div>
-    );
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -99,9 +121,16 @@ const Dashboard = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header */}
-      <div className="bg-gradient-to-r text-center from-green-500 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
+      <div className="bg-gradient-to-r text-center from-blue-900 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
         <p className="text-lg mt-2">Manage your crypto assets with ease</p>
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="mt-4 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+        >
+          Logout
+        </button>
       </div>
 
       {/* Add Crypto Form */}
@@ -110,7 +139,7 @@ const Dashboard = () => {
         className="bg-white md:flex flex-col justify-between items-center space-x-2 p-6 rounded-xl shadow-md mb-8"
       >
         <h2 className="text-2xl font-bold text-center mb-4">Add New Crypto</h2>
-        <div className="space-y-4 ">
+        <div className="space-y-4 flex flex-col justify-center items-center ">
           <input
             type="text"
             placeholder="Crypto Name"
@@ -127,7 +156,7 @@ const Dashboard = () => {
           />
           <button
             type="submit"
-            className="w-full p-3 md:w-[500px] bg-gradient-to-r from-green-500 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="w-full p-3 md:w-[500px] bg-gradient-to-r from--900 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
           >
             Add Crypto
           </button>

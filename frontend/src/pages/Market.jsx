@@ -38,7 +38,10 @@ const Market = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-3xl font-bold text-center mb-8">Crypto Market</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">
+        {" "}
+        Coingecko Crypto Market
+      </h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
           <thead className="bg-gray-700">

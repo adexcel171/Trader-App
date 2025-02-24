@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Loader from "../components/Loader";
 import Swal from "sweetalert2";
+import TopCryptos from "../components/topCrypto";
 
 const Home = () => {
   const { data: cryptos, isLoading, isError } = useGetCryptosQuery();
@@ -85,10 +86,12 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-6">
+      <TopCryptos />
+
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold mb-4 text-gray-800">
-          Available Cryptocurrencies
+        <h1 className="text-4xl text-center font-extrabold mb-4 text-gray-800">
+          Treading Cryptocurrencies
         </h1>
         <p className="text-lg text-gray-600">
           Explore the latest cryptocurrency rates and buy directly from trusted
