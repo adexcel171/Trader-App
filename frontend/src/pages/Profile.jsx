@@ -6,7 +6,7 @@ import { FaUser, FaWallet, FaChartLine, FaCoins } from "react-icons/fa";
 import Loader from "../components/Loader";
 import { useProfileMutation } from "../services/userApi";
 import { setCredentials } from "../services/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,16 +36,22 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const [updateProfile, { isLoading: loadingUpdateProfile }] =
     useProfileMutation();
 
-  useEffect(() => {
-    setUserName(userInfo.username);
-    setEmail(userInfo.email);
-  }, [userInfo.email, userInfo.username]);
-
   const dispatch = useDispatch();
+
+  // Redirect to login if userInfo is null (user is not authenticated)
+  useEffect(() => {
+    if (!userInfo) {
+      navigate("/login");
+    } else {
+      setUserName(userInfo.username || "");
+      setEmail(userInfo.email || "");
+    }
+  }, [userInfo, navigate]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -94,6 +100,11 @@ const Profile = () => {
     },
   };
 
+  // Show loader if userInfo is not yet available
+  if (!userInfo) {
+    return <Loader />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6">
       <div className="container mx-auto">
@@ -140,6 +151,10 @@ const Profile = () => {
             {/* Wallet Balance Section */}
 
             {/* Crypto Chart */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+              <h2 className="text-xl font-bold mb-4">Bitcoin Price Trend</h2>
+              <Line data={chartData} options={chartOptions} />
+            </div>
 
             {/* Update Profile Form */}
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
