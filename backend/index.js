@@ -11,7 +11,7 @@ const app = express();
 // ✅ Apply CORS Middleware First
 app.use(
   cors({
-    origin: "https://trader-xewp.onrender.com",
+    origin: "https://cryptomarket-n3eh.onrender.com",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // Enable cookies
     optionsSuccessStatus: 204,
