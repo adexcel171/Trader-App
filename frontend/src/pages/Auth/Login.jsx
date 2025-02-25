@@ -49,9 +49,6 @@ const Login = () => {
             <p className="text-lg">
               Sign in to access your account and explore our exclusive offers.
             </p>
-            <div className="mt-8">
-              <img src="" className="w-full h-[70%] rounded-lg" />
-            </div>
           </div>
         </div>
 

@@ -64,10 +64,12 @@ const TopCryptos = () => {
         {
           label: "Price (USD)",
           data: generatePriceData(), // Replace with real data if available
-          borderColor: "rgba(75, 192, 192, 1)",
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor:
+            crypto.quote.USD.percent_change_24h > 0 ? "#10B981" : "#EF4444", // Green for increase, red for decrease
+          backgroundColor: "transparent",
           borderWidth: 2,
           tension: 0.4, // Smooth line
+          pointRadius: 0, // Hide points
         },
       ],
     };
@@ -77,11 +79,11 @@ const TopCryptos = () => {
   const getPriceChangeIndicator = (crypto) => {
     const priceChange = crypto.quote.USD.percent_change_24h;
     if (priceChange > 0) {
-      return "🟢"; // Green circle for increase
+      return "▲"; // Up arrow for increase
     } else if (priceChange < 0) {
-      return "🔴"; // Red circle for decrease
+      return "▼"; // Down arrow for decrease
     } else {
-      return "⚪"; // White circle for no change
+      return "●"; // Circle for no change
     }
   };
 
@@ -109,55 +111,53 @@ const TopCryptos = () => {
             key={crypto.id}
             className="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
           >
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center space-x-3">
-                <span className="text-lg">
-                  {getPriceChangeIndicator(crypto)}
-                </span>
+            <div className="flex justify-between items-center">
+              {/* Coin Name and Price */}
+              <div className="flex flex-col">
                 <h3 className="text-xl font-bold">
                   {crypto.name} ({crypto.symbol})
                 </h3>
+                <p className="text-gray-300 font-semibold">
+                  ${crypto.quote.USD.price.toFixed(2)}{" "}
+                  <span
+                    className={`text-sm ${
+                      crypto.quote.USD.percent_change_24h > 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {getPriceChangeIndicator(crypto)}{" "}
+                    {Math.abs(crypto.quote.USD.percent_change_24h).toFixed(2)}%
+                  </span>
+                </p>
               </div>
-              <p className="text-gray-300 font-semibold">
-                ${crypto.quote.USD.price.toFixed(2)}
-              </p>
-            </div>
 
-            {/* Chart */}
-            <div className="h-40">
-              <Line
-                data={getChartData(crypto)}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      display: false, // Hide legend
-                    },
-                    tooltip: {
-                      enabled: true,
-                    },
-                  },
-                  scales: {
-                    x: {
-                      grid: {
-                        display: false, // Hide x-axis grid lines
+              {/* Small Graph */}
+              <div className="w-24 h-16">
+                <Line
+                  data={getChartData(crypto)}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false, // Hide legend
                       },
-                      ticks: {
-                        color: "rgba(255, 255, 255, 0.7)", // White text for x-axis
+                      tooltip: {
+                        enabled: false, // Disable tooltips
                       },
                     },
-                    y: {
-                      grid: {
-                        color: "rgba(255, 255, 255, 0.1)", // Light grid lines for y-axis
+                    scales: {
+                      x: {
+                        display: false, // Hide x-axis
                       },
-                      ticks: {
-                        color: "rgba(255, 255, 255, 0.7)", // White text for y-axis
+                      y: {
+                        display: false, // Hide y-axis
                       },
                     },
-                  },
-                }}
-              />
+                  }}
+                />
+              </div>
             </div>
           </div>
         ))}

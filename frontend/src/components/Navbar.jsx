@@ -13,10 +13,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <a
-              href="/"
-              className="text-white font-bold text-2xl font-bold flex items-center"
-            >
+            <a href="/" className="text-white font-bold flex items-center">
               {/* <img src="/logo.png" alt="Trader Logo" className="h-8 w-8 mr-2" /> */}
               TRADE CRYPTO
             </a>
@@ -104,7 +101,7 @@ const Navbar = () => {
           {/* Menu Container */}
           <div className="fixed inset-y-0 right-0 w-64 bg-gray-900 shadow-lg transform transition-transform duration-300 ease-in-out">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-              <span className="text-white text-lg font-bold flex items-center">
+              <span className="text-white font-bold flex items-center">
                 {/* <img
                   src="/logo.png"
                   alt="Trader Logo"

@@ -89,8 +89,8 @@ const Home = () => {
       <TopCryptos />
 
       {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl text-center font-extrabold mb-4 text-gray-800">
+      <div className="text-center mt-7 mb-12">
+        <h1 className="text-4xl text-center mt-6  font-extrabold mb-4 text-gray-800">
           Treading Cryptocurrencies
         </h1>
         <p className="text-lg text-gray-600">
