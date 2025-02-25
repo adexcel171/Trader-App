@@ -43,7 +43,7 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
         {/* Left Section: Illustration */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-600 p-8 flex items-center justify-center">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-blue-900 to-blue-800 p-8 flex items-center justify-center">
           <div className="text-center text-white">
             <h2 className="text-4xl font-bold mb-4">Welcome Back!</h2>
             <p className="text-lg">
@@ -102,7 +102,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center font-medium"
+              className="w-full bg-gradient-to-r from-blue-900 to-blue-800 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center font-medium"
             >
               {isLoading ? (
                 <RotatingLines
