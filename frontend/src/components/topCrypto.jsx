@@ -28,6 +28,7 @@ const TopCryptos = () => {
   const [cryptos, setCryptos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState("");
 
   // Fetch top 5 cryptos from your backend
   useEffect(() => {
@@ -35,6 +36,7 @@ const TopCryptos = () => {
       try {
         const response = await axios.get("/api/top-cryptos");
         setCryptos(response.data.data); // Assuming the data is in response.data.data
+        setLastUpdated(new Date().toLocaleTimeString());
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch data");
@@ -71,6 +73,18 @@ const TopCryptos = () => {
     };
   };
 
+  // Determine if the price is increasing or decreasing
+  const getPriceChangeIndicator = (crypto) => {
+    const priceChange = crypto.quote.USD.percent_change_24h;
+    if (priceChange > 0) {
+      return "🟢"; // Green circle for increase
+    } else if (priceChange < 0) {
+      return "🔴"; // Red circle for decrease
+    } else {
+      return "⚪"; // White circle for no change
+    }
+  };
+
   if (loading) {
     return <Loader />; // Show a loading spinner while fetching data
   }
@@ -80,29 +94,37 @@ const TopCryptos = () => {
   }
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl text-center  font-bold mb-6">
-        Coin Market Cap Top 5{" "}
+    <div className="bg-gray-900 text-white p-4 rounded-lg shadow-lg">
+      <h2 className="text-2xl text-center font-bold mb-4">
+        Coin Market Cap Top 5
       </h2>
+      <p className="text-center text-sm text-gray-400 mb-6">
+        Last Updated: {lastUpdated}
+      </p>
 
       {/* Crypto List */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {cryptos.map((crypto) => (
           <div
             key={crypto.id}
-            className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            className="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">
-                {crypto.name} ({crypto.symbol})
-              </h3>
-              <p className="text-gray-300">
-                Price: ${crypto.quote.USD.price.toFixed(2)}
+              <div className="flex items-center space-x-3">
+                <span className="text-lg">
+                  {getPriceChangeIndicator(crypto)}
+                </span>
+                <h3 className="text-xl font-bold">
+                  {crypto.name} ({crypto.symbol})
+                </h3>
+              </div>
+              <p className="text-gray-300 font-semibold">
+                ${crypto.quote.USD.price.toFixed(2)}
               </p>
             </div>
 
             {/* Chart */}
-            <div className="h-48">
+            <div className="h-40">
               <Line
                 data={getChartData(crypto)}
                 options={{
