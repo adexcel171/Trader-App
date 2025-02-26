@@ -89,14 +89,14 @@ const Home = () => {
       {/* Header */}
       <div className="text-center mt-7 mb-12">
         <h1 className="text-4xl text-center mt-6  font-extrabold mb-4 text-gray-800">
-          Your trusted marketplace for buying and selling cryptocurrency at
-          real-time rates. Trade with confidence!"
+          Your trusted marketplace for buying and selling cryptocurrency
         </h1>
         <p className="text-lg text-gray-600">
           Get the best deals! Click ‘Buy’ or ‘Sell’ now to trade with trusted
           sellers at great rates
         </p>
       </div>
+      <TopCryptos />
 
       {/* Search, Sort, and Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -126,7 +126,6 @@ const Home = () => {
             size={20}
           />
         </div>
-        <TopCryptos />
 
         {/* Filters Button */}
         <button

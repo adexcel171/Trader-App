@@ -48,9 +48,6 @@ const TopCryptos = () => {
 
   return (
     <div className="bg-gray-900 text-white p-4 rounded-lg shadow-lg">
-      <h2 className="text-2xl text-center font-bold mb-4">
-        Coin Market Cap Top 5
-      </h2>
       <p className="text-center text-sm text-gray-400 mb-6">
         Last Updated: {lastUpdated}
       </p>
