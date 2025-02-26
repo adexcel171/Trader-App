@@ -86,16 +86,15 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <TopCryptos />
-
       {/* Header */}
       <div className="text-center mt-7 mb-12">
         <h1 className="text-4xl text-center mt-6  font-extrabold mb-4 text-gray-800">
-          Treading Cryptocurrencies
+          Your trusted marketplace for buying and selling cryptocurrency at
+          real-time rates. Trade with confidence!"
         </h1>
         <p className="text-lg text-gray-600">
-          Explore the latest cryptocurrency rates and buy directly from trusted
-          sellers.
+          Get the best deals! Click ‘Buy’ or ‘Sell’ now to trade with trusted
+          sellers at great rates
         </p>
       </div>
 
@@ -127,6 +126,7 @@ const Home = () => {
             size={20}
           />
         </div>
+        <TopCryptos />
 
         {/* Filters Button */}
         <button
@@ -219,7 +219,7 @@ const Home = () => {
               <div className="flex justify-center items-center">
                 <button
                   onClick={() => handleBuyClick(crypto.name)}
-                  className="mt-6 mx-3.5 w-full h-[50px] inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                  className="mt-6 mx-3.5 w-full h-[60px] inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
                 >
                   Buy Now
                 </button>
@@ -229,7 +229,7 @@ const Home = () => {
                   href={adminWhatsAppBase + message}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 w-full mx-3  h-[50px] inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                  className="mt-6 w-full mx-3  h-[60px] inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
                 >
                   Sell Now
                 </a>
