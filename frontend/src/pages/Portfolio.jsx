@@ -49,7 +49,7 @@ const Portfolio = () => {
           {/* Profile Picture */}
           <div className="flex justify-center">
             <img
-              src="https://www.freepik.com/free-photo/young-successful-confident-woman-with-glasses-holds-gold-bitcoin-her-hand-isolated-black-wall_14670310.htm#fromView=search&page=1&position=16&uuid=e040a72f-e226-4d42-9b61-a210cd238fe8&query=crypto+trader+girl"
+              src="2wCEAAkGBxISEhUTEhIVFRUXGBkaGBgXFRcXGBsYFxcXGBcdGBcYHSggGBolGxgYITEiJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGi0lICUtLS0rLS0tLS0tLS0tLS0tLS0rLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf"
               alt="Profile"
               className="rounded-lg shadow-lg w-full max-w-md"
             />
