@@ -216,19 +216,19 @@ const Home = () => {
 
               {/* Buy Now Button */}
               <div className="flex justify-center items-center">
-                <button
+                <butt
                   onClick={() => handleBuyClick(crypto.name)}
-                  className="mt-6 mx-3.5 w-full h-[60px] inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                  className="mt-6 mx-3.5 w-full h-[60px] flex justify-center items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
                 >
                   Buy Now
-                </button>
+                </butt
 
                 {/* Sell Now Button */}
                 <a
                   href={adminWhatsAppBase + message}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 w-full mx-3  h-[60px] inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                  className="mt-6 w-full mx-3  h-[60px] flex justify-center items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
                 >
                   Sell Now
                 </a>
