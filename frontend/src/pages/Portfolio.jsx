@@ -49,7 +49,7 @@ const Portfolio = () => {
           {/* Profile Picture */}
           <div className="flex justify-center">
             <img
-              src="2wCEAAkGBxISEhUTEhIVFRUXGBkaGBgXFRcXGBsYFxcXGBcdGBcYHSggGBolGxgYITEiJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGi0lICUtLS0rLS0tLS0tLS0tLS0tLS0rLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf"
+              src="https://previews.123rf.com/images/agnormark/agnormark1801/agnormark180100027/92876820-woman-bitcoin-trading.jpg"
               alt="Profile"
               className="rounded-lg shadow-lg w-full max-w-md"
             />
@@ -57,23 +57,18 @@ const Portfolio = () => {
           {/* About Me Content */}
           <div>
             <h3 className="text-3xl font-bold mb-6">About Me</h3>
+
             <p className="text-gray-400 mb-6">
-              Hi, I'm [Her Name], the founder and CEO of Crypto Trading Co. With
-              over a decade of experience in the financial markets, I have
-              dedicated my career to mastering the art of trading and helping
-              others achieve financial freedom through cryptocurrency.
-            </p>
-            <p className="text-gray-400 mb-6">
-              My journey began in [Year] when I first discovered the potential
-              of blockchain technology. Since then, I have built a successful
+              My journey began in 17 when I first discovered the potential of
+              blockchain technology. Since then, I have built a successful
               trading company that partners with some of the most reputable
               names in the industry. My mission is to empower individuals to
               take control of their financial future through education and
               innovative trading strategies.
             </p>
-            <blockquote className="border-l-4 border-purple-500 pl-4 text-gray-400 italic">
-              "The stock market is a device for transferring money from the
-              impatient to the patient." – Warren Buffett
+            <blockquote className="border-l-4 border-blue-500 pl-4 text-gray-400 italic">
+              Trading crypto is not about getting rich overnight; it’s about
+              making the right moves consistently
             </blockquote>
           </div>
         </div>
