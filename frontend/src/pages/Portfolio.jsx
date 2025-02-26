@@ -25,9 +25,6 @@ const Portfolio = () => {
       {/* Navbar */}
       <nav className="p-6 border-b border-gray-700">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-purple-500">
-            Crypto Trading Co.
-          </h1>
           <div className="flex space-x-4">
             {socialMediaLinks.map((link, index) => (
               <a
@@ -45,17 +42,6 @@ const Portfolio = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 text-center">
-        <h2 className="text-5xl font-bold mb-4">
-          Welcome to Crypto Trading Co.
-        </h2>
-        <p className="text-gray-400 text-lg mb-8">
-          Your trusted partner in the world of cryptocurrency trading.
-        </p>
-        <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
-          Get Started
-        </button>
-      </section>
 
       {/* About Me Section */}
       <section className="container mx-auto px-6 py-20">
@@ -63,7 +49,7 @@ const Portfolio = () => {
           {/* Profile Picture */}
           <div className="flex justify-center">
             <img
-              src="https://previews.123rf.com/images/agnormark/agnormark1801/agnormark180100027/92876820-woman-bitcoin-trading.jpg"
+              src="https://www.freepik.com/free-photo/young-successful-confident-woman-with-glasses-holds-gold-bitcoin-her-hand-isolated-black-wall_14670310.htm#fromView=search&page=1&position=16&uuid=e040a72f-e226-4d42-9b61-a210cd238fe8&query=crypto+trader+girl"
               alt="Profile"
               className="rounded-lg shadow-lg w-full max-w-md"
             />
