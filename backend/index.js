@@ -4,6 +4,8 @@ const cors = require("cors");
 const axios = require("axios");
 require("dotenv").config();
 const path = require("path");
+const http = require("http"); // Import http module
+const initializeSocket = require("./socket/socket");
 const userRoutes = require("./routes/userRoutes.js");
 
 const app = express();
@@ -20,6 +22,12 @@ app.use(
 );
 
 app.use(express.json());
+
+// ✅ Create HTTP Server
+const server = http.createServer(app);
+
+// ✅ Initialize Socket.io
+const io = initializeSocket(server);
 
 // ✅ Ensure Axios is Imported
 app.get("/api/top-cryptos", async (req, res) => {
@@ -67,4 +75,4 @@ if (process.env.NODE_ENV === "production") {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

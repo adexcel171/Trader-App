@@ -15,6 +15,7 @@ import {
 import Loader from "../components/Loader";
 import Swal from "sweetalert2";
 import TopCryptos from "../components/topCrypto";
+import socket from "../services/socket"; // Import Socket.IO client
 
 const Home = () => {
   const { data: cryptos, isLoading, isError } = useGetCryptosQuery();
@@ -22,6 +23,7 @@ const Home = () => {
   const [sortBy, setSortBy] = useState("rate");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("NGN");
+  const [filteredCryptos, setFilteredCryptos] = useState([]); // State for filtered cryptos
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
   // Animation controls
@@ -43,15 +45,51 @@ const Home = () => {
   }
 
   // Filter and sort cryptos
-  const filteredCryptos = cryptos
-    ?.filter((crypto) =>
-      crypto.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortBy === "rate") return b.rate - a.rate;
-      if (sortBy === "name") return a.name.localeCompare(b.name);
-      return 0;
+  useEffect(() => {
+    if (cryptos) {
+      const filtered = cryptos
+        .filter((crypto) =>
+          crypto.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+          if (sortBy === "rate") return b.rate - a.rate;
+          if (sortBy === "name") return a.name.localeCompare(b.name);
+          return 0;
+        });
+      setFilteredCryptos(filtered);
+    }
+  }, [cryptos, searchQuery, sortBy]);
+
+  // Socket.IO real-time updates
+  useEffect(() => {
+    // Listen for new crypto additions
+    socket.on("cryptoAdded", (newCrypto) => {
+      setFilteredCryptos((prev) => [...prev, newCrypto]);
     });
+
+    // Listen for crypto updates
+    socket.on("cryptoUpdated", (updatedCrypto) => {
+      setFilteredCryptos((prev) =>
+        prev.map((crypto) =>
+          crypto._id === updatedCrypto._id ? updatedCrypto : crypto
+        )
+      );
+    });
+
+    // Listen for crypto deletions
+    socket.on("cryptoDeleted", (deletedCryptoId) => {
+      setFilteredCryptos((prev) =>
+        prev.filter((crypto) => crypto._id !== deletedCryptoId)
+      );
+    });
+
+    // Cleanup listeners on unmount
+    return () => {
+      socket.off("cryptoAdded");
+      socket.off("cryptoUpdated");
+      socket.off("cryptoDeleted");
+    };
+  }, []);
 
   const handleBuyClick = (cryptoName) => {
     Swal.fire({
@@ -173,6 +211,7 @@ const Home = () => {
 
           return (
             <motion.div
+              key={crypto._id} // Add key for list rendering
               ref={ref}
               initial={{ opacity: 0, y: 20 }}
               animate="visible"
@@ -216,12 +255,12 @@ const Home = () => {
 
               {/* Buy Now Button */}
               <div className="flex justify-center items-center">
-                <butt
+                <button
                   onClick={() => handleBuyClick(crypto.name)}
                   className="mt-6 mx-3.5 w-full h-[60px] flex justify-center items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
                 >
                   Buy Now
-                </butt
+                </button>
 
                 {/* Sell Now Button */}
                 <a
