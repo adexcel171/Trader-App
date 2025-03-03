@@ -3,11 +3,9 @@ const { Server } = require("socket.io");
 function initializeSocket(server, app) {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "https://cryptomarket-n3eh.onrender.com",
-        process.env.NODE_ENV === "development" && "http://localhost:5173",
-      ].filter(Boolean),
+      origin: "https://cryptomarket-n3eh.onrender.com", // Single origin for Socket.IO
       methods: ["GET", "POST"],
+      credentials: true, // Optional: Include if you need cookies/auth headers
     },
   });
 
