@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [tailwindcss(), react()], // Remove tailwindcss() since Tailwind works via `postcss.config.js`
   server: {
     proxy: {
-      "/api": "https://trader-xewp.onrender.com",
+      "/api": "http://localhost:5173",
     },
     historyApiFallback: true, // Enable client-side routing
   },

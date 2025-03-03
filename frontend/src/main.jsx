@@ -13,6 +13,7 @@ import WalletAccounts from "./pages/Wallet";
 import Profile from "./pages/Profile";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
+import UserActivities from "./pages/UserActivities";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: "/portfolio", element: <CryptoPortfolio /> },
       { path: "/wallet", element: <WalletAccounts /> },
       { path: "/profile", element: <Profile /> },
+      { path: "/activities", element: <UserActivities /> },
     ],
   },
 ]);

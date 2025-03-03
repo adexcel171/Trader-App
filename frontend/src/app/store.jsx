@@ -1,13 +1,16 @@
+// store.js
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../services/authSlice"; // ✅ User authentication state
-import { apiSlice } from "../apiSlice"; // ✅ API services
-import { cryptoApi } from "../services/cryptoApi"; // ✅ Crypto API service
+import authReducer from "../services/authSlice";
+import transactionsReducer from "../services/tansactionSlice"; // Add this line
+import { apiSlice } from "../apiSlice";
+import { cryptoApi } from "../services/cryptoApi";
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer, // ✅ Handles authentication state (userInfo)
-    [apiSlice.reducerPath]: apiSlice.reducer, // ✅ Handles API calls
-    [cryptoApi.reducerPath]: cryptoApi.reducer, // ✅ Handles Crypto API calls
+    auth: authReducer,
+    transactions: transactionsReducer, // Add this line
+    [apiSlice.reducerPath]: apiSlice.reducer,
+    [cryptoApi.reducerPath]: cryptoApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware, cryptoApi.middleware),
