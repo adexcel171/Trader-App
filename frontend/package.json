@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+ "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "vite build && vite", // For Render static hosting
     "preview": "vite preview"
   },
   "dependencies": {

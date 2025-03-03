@@ -4,18 +4,23 @@ const cors = require("cors");
 const axios = require("axios");
 require("dotenv").config();
 const path = require("path");
-const http = require("http"); // Import http module
+const http = require("http");
 const initializeSocket = require("./socket/socket");
 const userRoutes = require("./routes/userRoutes.js");
 
 const app = express();
 
 // ✅ Apply CORS Middleware First
+const allowedOrigins = [
+  "https://cryptomarket-n3eh.onrender.com",
+  process.env.NODE_ENV === "development" && "http://localhost:5173",
+].filter(Boolean); // Remove false values (e.g., if NODE_ENV !== "development")
+
 app.use(
   cors({
-    origin: ["https://cryptomarket-n3eh.onrender.com", "http://localhost:5173"], // Allow both origins
+    origin: allowedOrigins,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // Enable cookies
+    credentials: true,
     optionsSuccessStatus: 204,
     allowedHeaders: "Content-Type, Authorization",
   })
@@ -26,13 +31,8 @@ app.use(express.json());
 // ✅ Create HTTP Server
 const server = http.createServer(app);
 
-<<<<<<< HEAD
 // ✅ Initialize Socket.io and pass the app object
 initializeSocket(server, app);
-=======
-// ✅ Initialize Socket.io
-const io = initializeSocket(server);
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
 
 // ✅ Ensure Axios is Imported
 app.get("/api/top-cryptos", async (req, res) => {
@@ -41,7 +41,8 @@ app.get("/api/top-cryptos", async (req, res) => {
       "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=5",
       {
         headers: {
-          "X-CMC_PRO_API_KEY": "2d337d70-4775-4eda-8aa2-d572150e00b1",
+          "X-CMC_PRO_API_KEY":
+            process.env.CMC_API_KEY || "2d337d70-4775-4eda-8aa2-d572150e00b1",
         },
       }
     );

@@ -4,8 +4,8 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "backend": "nodemon backend/index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js", // Used by Render for production
+    "dev": "nodemon index.js" // Used locally for development
   },
   "author": "",
   "license": "ISC",
