@@ -1,11 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "backend/index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js", // Used by Render for production
-    "dev": "nodemon index.js" // Used locally for development
+    "start": "node backend/index.js",
+    "dev": "nodemon backend/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +18,9 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
-    "nodemon": "^3.1.9",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

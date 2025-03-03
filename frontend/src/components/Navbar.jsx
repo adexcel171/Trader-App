@@ -74,7 +74,7 @@ const Navbar = () => {
               ...(userInfo?.isAdmin
                 ? [
                     {
-                      to: "/admin/transactions",
+                      to: "/activities",
                       icon: FaCoins,
                       label: "Manage Transactions",
                     },

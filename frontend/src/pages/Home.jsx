@@ -5,7 +5,6 @@ import { useGetCryptosQuery } from "../services/cryptoApi";
 import { Search, Filter, ChevronDown, Copy } from "lucide-react";
 import Loader from "../components/Loader";
 import Swal from "sweetalert2";
-<<<<<<< HEAD
 import socket from "../services/socket";
 import { useSelector, useDispatch } from "react-redux";
 import { addTransaction } from "../services/tansactionSlice";
@@ -24,10 +23,6 @@ const cryptoImages = {
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
   // Add more as needed based on your API data
 };
-=======
-import TopCryptos from "../components/topCrypto";
-import socket from "../services/socket"; // Import Socket.IO client
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
 
 const Home = () => {
   const { data: cryptos, isLoading, isError } = useGetCryptosQuery();
@@ -35,11 +30,7 @@ const Home = () => {
   const [sortBy, setSortBy] = useState("rate");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("NGN");
-<<<<<<< HEAD
   const [filteredCryptos, setFilteredCryptos] = useState([]);
-=======
-  const [filteredCryptos, setFilteredCryptos] = useState([]); // State for filtered cryptos
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
   const controls = useAnimation();
@@ -207,89 +198,9 @@ const Home = () => {
     );
   }
 
-<<<<<<< HEAD
   if (isLoading) {
     return <Loader />;
   }
-=======
-  // Filter and sort cryptos
-  useEffect(() => {
-    if (cryptos) {
-      const filtered = cryptos
-        .filter((crypto) =>
-          crypto.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-        .sort((a, b) => {
-          if (sortBy === "rate") return b.rate - a.rate;
-          if (sortBy === "name") return a.name.localeCompare(b.name);
-          return 0;
-        });
-      setFilteredCryptos(filtered);
-    }
-  }, [cryptos, searchQuery, sortBy]);
-
-  // Socket.IO real-time updates
-  useEffect(() => {
-    // Listen for new crypto additions
-    socket.on("cryptoAdded", (newCrypto) => {
-      setFilteredCryptos((prev) => [...prev, newCrypto]);
-    });
-
-    // Listen for crypto updates
-    socket.on("cryptoUpdated", (updatedCrypto) => {
-      setFilteredCryptos((prev) =>
-        prev.map((crypto) =>
-          crypto._id === updatedCrypto._id ? updatedCrypto : crypto
-        )
-      );
-    });
-
-    // Listen for crypto deletions
-    socket.on("cryptoDeleted", (deletedCryptoId) => {
-      setFilteredCryptos((prev) =>
-        prev.filter((crypto) => crypto._id !== deletedCryptoId)
-      );
-    });
-
-    // Cleanup listeners on unmount
-    return () => {
-      socket.off("cryptoAdded");
-      socket.off("cryptoUpdated");
-      socket.off("cryptoDeleted");
-    };
-  }, []);
-
-  const handleBuyClick = (cryptoName) => {
-    Swal.fire({
-      title: "Buy Cryptocurrency",
-      html:
-        `<input id="swal-input1" class="swal2-input" placeholder="Coin Name" value="${cryptoName}" readonly>` +
-        `<input id="swal-input2" class="swal2-input" placeholder="Rate">`,
-      focusConfirm: false,
-      preConfirm: () => {
-        return [
-          document.getElementById("swal-input1").value,
-          document.getElementById("swal-input2").value,
-        ];
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const [coinName, rate] = result.value;
-        const message = `Hello%2C%20I%20want%20to%20buy%20${encodeURIComponent(
-          coinName
-        )}%20at%20the%20rate%20of%20₦${rate}`;
-        window.open(`${adminWhatsAppBase}${message}`, "_blank");
-      }
-    });
-  };
-
-  if (isLoading)
-    return (
-      <div>
-        <Loader />{" "}
-      </div>
-    );
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
@@ -385,11 +296,7 @@ const Home = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCryptos.map((crypto) => (
             <motion.div
-<<<<<<< HEAD
               key={crypto._id}
-=======
-              key={crypto._id} // Add key for list rendering
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
               ref={ref}
               initial={{ opacity: 0, y: 20 }}
               animate={controls}
@@ -422,32 +329,7 @@ const Home = () => {
                   <span className="text-blue-500">
                     ₦{crypto.rate.toLocaleString()}
                   </span>
-<<<<<<< HEAD
                 </p>
-=======
-                  <span className="text-sm text-gray-500 ml-2">(24h)</span>
-                </div>
-              </div>
-
-              {/* Buy Now Button */}
-              <div className="flex justify-center items-center">
-                <button
-                  onClick={() => handleBuyClick(crypto.name)}
-                  className="mt-6 mx-3.5 w-full h-[60px] flex justify-center items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
-                >
-                  Buy Now
-                </button>
-
-                {/* Sell Now Button */}
-                <a
-                  href={adminWhatsAppBase + message}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 w-full mx-3  h-[60px] flex justify-center items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
-                >
-                  Sell Now
-                </a>
->>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
               </div>
               <motion.button
                 onClick={() => handleTradeClick(crypto)}
