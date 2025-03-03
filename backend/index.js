@@ -26,8 +26,13 @@ app.use(express.json());
 // ✅ Create HTTP Server
 const server = http.createServer(app);
 
+<<<<<<< HEAD
 // ✅ Initialize Socket.io and pass the app object
 initializeSocket(server, app);
+=======
+// ✅ Initialize Socket.io
+const io = initializeSocket(server);
+>>>>>>> 47cb585e211e80c3793740534b4a2593c4f69269
 
 // ✅ Ensure Axios is Imported
 app.get("/api/top-cryptos", async (req, res) => {
