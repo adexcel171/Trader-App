@@ -1,5 +1,5 @@
 // backend/controllers/transactionController.js
-const asyncHandler = require("express-async-handler");
+const asyncHandler = require("../middlewares/asyncHandler");
 const Transaction = require("../models/Transaction");
 
 const getUserTransactions = asyncHandler(async (req, res) => {
