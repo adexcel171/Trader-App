@@ -10,7 +10,7 @@ const {
 const {
   authenticate,
   authorizeAdmin,
-} = require("../middleware/authMiddleware");
+} = require("../middlewares/authMiddleware");
 
 router
   .route("/")

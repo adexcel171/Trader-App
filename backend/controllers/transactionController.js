@@ -1,7 +1,7 @@
 // backend/controllers/transactionController.js
 const asyncHandler = require("express-async-handler");
 const Transaction = require("../models/Transaction");
-const io = require("../socket"); // Socket.IO instance
+const io = require("../socket/socket"); // Socket.IO instance
 
 const createTransaction = asyncHandler(async (req, res) => {
   const { cryptoName, quantity, totalAmount, type } = req.body;
