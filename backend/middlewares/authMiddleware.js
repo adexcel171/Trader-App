@@ -14,6 +14,9 @@ const authenticate = asyncHandler(async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
       console.log("Token received:", token); // Debug
 
+      // Debug: Check if JWT_SECRET is defined
+      console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log("Decoded token:", decoded); // Debug
 
