@@ -7,6 +7,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
     let token;
     console.log("Authorization header:", req.headers.authorization); // Debug
 
+    // Check if Authorization header exists and starts with "Bearer"
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -14,30 +15,39 @@ const authenticate = asyncHandler(async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
       console.log("Token received:", token); // Debug
 
-      // Debug: Check if JWT_SECRET is defined
-      console.log("JWT_SECRET:", process.env.JWT_SECRET);
+      // Check if JWT_SECRET is defined
+      if (!process.env.JWT_SECRET) {
+        console.error("JWT_SECRET is not defined");
+        req.user = null; // Allow request to proceed without user
+        return next();
+      }
 
+      // Verify the token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log("Decoded token:", decoded); // Debug
 
-      req.user = await User.findById(decoded.id).select("-password");
-      if (!req.user) {
+      // Find the user by ID and exclude the password
+      const user = await User.findById(decoded.id).select("-password");
+      if (!user) {
         console.error("User not found for ID:", decoded.id);
-        res.status(401);
-        throw new Error("User not found");
+        req.user = null; // Allow request to proceed without user
+        return next();
       }
 
+      // Attach user to request and proceed
+      req.user = user;
       console.log("Authenticated user:", req.user); // Debug
       next();
     } else {
-      console.error("No token provided in Authorization header");
-      res.status(401);
-      throw new Error("Not authorized, no token");
+      console.log("No token provided in Authorization header"); // Debug, not an error
+      req.user = null; // Allow request to proceed without user
+      next();
     }
   } catch (error) {
     console.error("Authentication error:", error.message);
-    res.status(401);
-    throw new Error("Not authorized, token failed");
+    // Instead of throwing an error, set req.user to null and proceed
+    req.user = null;
+    next();
   }
 });
 
@@ -45,7 +55,7 @@ const authorizeAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    res.status(401).send("Not authorized as an admin.");
+    res.status(403).send("Not authorized as an admin.");
   }
 };
 
