@@ -1,16 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const {
-  authenticate,
-  authorizeAdmin,
-} = require("../middleware/authMiddleware");
+const { authenticate } = require("../middleware/authMiddleware");
 const Transaction = require("../models/transactionModel.js");
 
 // Admin-restricted route to fetch all transactions
 router.get(
-  "/api/transactions/",
+  "/api/transactions",
   authenticate,
-  authorizeAdmin,
+
   async (req, res) => {
     try {
       // Fetch all transactions (admin-only logic)
@@ -23,18 +20,14 @@ router.get(
 );
 
 // User-specific route to fetch user transactions
-router.get(
-  "/api/transactions/mytransactions",
-  authenticate,
-  async (req, res) => {
-    try {
-      // Fetch transactions for the authenticated user
-      const transactions = await Transaction.find({ user: req.user._id });
-      res.status(200).json(transactions);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
+router.get("/api/mytransactions", authenticate, async (req, res) => {
+  try {
+    // Fetch transactions for the authenticated user
+    const transactions = await Transaction.find({ user: req.user._id });
+    res.status(200).json(transactions);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
-);
+});
 
 module.exports = router;
