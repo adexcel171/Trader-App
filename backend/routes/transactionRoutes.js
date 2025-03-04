@@ -1,34 +1,40 @@
-// backend/routes/transactionRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
-  createTransaction,
-  updateTransactionStatus,
-  getUserTransactions,
-  getAllTransactions,
-} = require("../controllers/transactionController");
-const {
   authenticate,
   authorizeAdmin,
-} = require("../middlewares/authMiddleware");
+} = require("../middleware/authMiddleware");
+const Transaction = require("../models/transactionModel.js");
 
-// Debug: Log imported controllers to ensure they are defined
-console.log("Imported controllers:", {
-  createTransaction,
-  updateTransactionStatus,
-  getUserTransactions,
-  getAllTransactions,
-});
+// Admin-restricted route to fetch all transactions
+router.get(
+  "/api/transactions/",
+  authenticate,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      // Fetch all transactions (admin-only logic)
+      const transactions = await Transaction.find({});
+      res.status(200).json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
-router
-  .route("/")
-  .post(authenticate, createTransaction)
-  .get(authenticate, authorizeAdmin, getAllTransactions);
-
-router.route("/mytransactions").get(authenticate, getUserTransactions);
-
-router
-  .route("/:id/status")
-  .put(authenticate, authorizeAdmin, updateTransactionStatus);
+// User-specific route to fetch user transactions
+router.get(
+  "/api/transactions/mytransactions",
+  authenticate,
+  async (req, res) => {
+    try {
+      // Fetch transactions for the authenticated user
+      const transactions = await Transaction.find({ user: req.user._id });
+      res.status(200).json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
 module.exports = router;

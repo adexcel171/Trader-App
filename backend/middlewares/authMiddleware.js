@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel.js");
 const asyncHandler = require("./asyncHandler.js");
 
+// Middleware to authenticate user
 const authenticate = asyncHandler(async (req, res, next) => {
   try {
     let token;
@@ -18,8 +19,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
       // Check if JWT_SECRET is defined
       if (!process.env.JWT_SECRET) {
         console.error("JWT_SECRET is not defined");
-        req.user = null; // Allow request to proceed without user
-        return next();
+        return res.status(500).json({ message: "Server configuration error" });
       }
 
       // Verify the token
@@ -30,8 +30,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
       const user = await User.findById(decoded.id).select("-password");
       if (!user) {
         console.error("User not found for ID:", decoded.id);
-        req.user = null; // Allow request to proceed without user
-        return next();
+        return res.status(401).json({ message: "User not found" });
       }
 
       // Attach user to request and proceed
@@ -39,23 +38,23 @@ const authenticate = asyncHandler(async (req, res, next) => {
       console.log("Authenticated user:", req.user); // Debug
       next();
     } else {
-      console.log("No token provided in Authorization header"); // Debug, not an error
-      req.user = null; // Allow request to proceed without user
-      next();
+      console.log("No token provided in Authorization header"); // Debug
+      return res
+        .status(401)
+        .json({ message: "Not authorized, no token provided" });
     }
   } catch (error) {
     console.error("Authentication error:", error.message);
-    // Instead of throwing an error, set req.user to null and proceed
-    req.user = null;
-    next();
+    return res.status(401).json({ message: "Not authorized, token failed" });
   }
 });
 
+// Middleware to authorize admin users
 const authorizeAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    res.status(403).send("Not authorized as an admin.");
+    return res.status(403).json({ message: "Not authorized as an admin" });
   }
 };
 
