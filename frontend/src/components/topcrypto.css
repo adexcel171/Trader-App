@@ -1,13 +1,18 @@
-@keyframes marquee {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(-100%);
-  }
+.carousel-container {
+  overflow: hidden;
+  position: relative;
 }
 
-.animate-marquee {
-  display: inline-block;
-  animation: marquee 20s linear infinite;
+/* Ensure smooth transitions for the carousel items */
+.carousel-container .flex {
+  display: flex;
+}
+
+.carousel-container .min-w-full {
+  flex-shrink: 0;
+}
+
+/* Optional: Add some hover effects for the arrows */
+button:hover svg {
+  transform: scale(1.1);
 }
