@@ -14,6 +14,11 @@ const cryptoImages = {
   Ethereum:
     "https://cryptologos.cc/logos/versions/ethereum-eth-logo-colored.svg?v=040",
   Tether: "https://cryptologos.cc/logos/tether-usdt-logo.png?v=040",
+  "Binance Coin": "https://cryptologos.cc/logos/binance-coin-bnb-logo.png",
+  Cardano: "https://cryptologos.cc/logos/cardano-ada-logo.png",
+  XRP: "https://cryptologos.cc/logos/xrp-xrp-logo.png",
+  Solana: "https://cryptologos.cc/logos/solana-sol-logo.png",
+  Polkadot: "https://cryptologos.cc/logos/polkadot-new-dot-logo.png",
   Dogecoin: "https://cryptologos.cc/logos/dogecoin-doge-logo.png",
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
