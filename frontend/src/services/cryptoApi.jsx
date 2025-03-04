@@ -1,3 +1,4 @@
+// src/services/cryptoApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../../constant.js";
 
@@ -5,6 +6,14 @@ export const cryptoApi = createApi({
   reducerPath: "cryptoApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${BASE_URL}/api`,
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.userInfo?.token;
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+    credentials: "include", // Ensure cookies are sent with requests
   }),
   tagTypes: ["Crypto"],
   endpoints: (builder) => ({
