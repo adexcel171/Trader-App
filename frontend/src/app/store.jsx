@@ -1,20 +1,26 @@
-// store.js
+// src/app/store.js
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../services/authSlice";
-// import transactionsReducer from "../services/tansactionSlice"; // Add this line
-import { apiSlice } from "../apiSlice";
-import { cryptoApi } from "../services/cryptoApi";
-import { transactionApi } from "../services/transactionApi";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { transactionApi } from "../services/transactionApi"; // From your previous code
+import { cryptoApi } from "../services/cryptoApi"; // Import your cryptoApi (adjust path if needed)
+import authReducer from "../services/authSlice"; // Assuming you have an auth reducer
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
-    // transactions: transactionsReducer, // Add this line
-    [apiSlice.reducerPath]: apiSlice.reducer,
-    [cryptoApi.reducerPath]: cryptoApi.reducer,
+    // Add reducers for all RTK Query APIs
     [transactionApi.reducerPath]: transactionApi.reducer,
+    [cryptoApi.reducerPath]: cryptoApi.reducer,
+    auth: authReducer, // Your existing auth reducer
   },
+  // Add middleware for all RTK Query APIs
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware, cryptoApi.middleware),
-  devTools: process.env.NODE_ENV !== "production",
+    getDefaultMiddleware().concat([
+      transactionApi.middleware,
+      cryptoApi.middleware,
+    ]),
 });
+
+// Optional: Set up listeners for refetching and other RTK Query behaviors
+setupListeners(store.dispatch);
+
+export default store;
