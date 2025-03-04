@@ -2,64 +2,43 @@ import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
 import { useGetCryptosQuery } from "../services/cryptoApi";
-import { Search, Filter, ChevronDown, Copy } from "lucide-react";
+import { Search, Filter, ChevronDown } from "lucide-react";
 import Loader from "../components/Loader";
 import Swal from "sweetalert2";
-import socket from "../services/socket";
 import { useSelector } from "react-redux";
-import { useCreateTransactionMutation } from "../services/transactionApi"; // Import RTK Query mutation
+import { useCreateTransactionMutation } from "../services/transactionApi";
 
-// Expanded cryptoImages object with logos for common cryptocurrencies
+// Crypto logos
 const cryptoImages = {
   Bitcoin: "https://cryptologos.cc/logos/bitcoin-btc-logo.png",
   Ethereum:
     "https://cryptologos.cc/logos/versions/ethereum-eth-logo-colored.svg?v=040",
   Tether: "https://cryptologos.cc/logos/tether-usdt-logo.png?v=040",
-  "Binance Coin": "https://cryptologos.cc/logos/binance-coin-bnb-logo.png",
-  Cardano: "https://cryptologos.cc/logos/cardano-ada-logo.png",
-  XRP: "https://cryptologos.cc/logos/xrp-xrp-logo.png",
-  Solana: "https://cryptologos.cc/logos/solana-sol-logo.png",
-  Polkadot: "https://cryptologos.cc/logos/polkadot-new-dot-logo.png",
   Dogecoin: "https://cryptologos.cc/logos/dogecoin-doge-logo.png",
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
 
-// Card variants for staggered animation
+// Animation variants
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: (i) => ({
     opacity: 1,
     y: 0,
-    transition: {
-      delay: i * 0.2,
-      duration: 0.5,
-      ease: "easeOut",
-    },
+    transition: { delay: i * 0.2, duration: 0.5, ease: "easeOut" },
   }),
 };
 
-// Container variants for overall animation
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
 };
 
 const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const controls = useAnimation();
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
+    if (inView) controls.start("visible");
   }, [controls, inView]);
 
   return (
@@ -80,9 +59,7 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
           className="w-12 h-12 object-contain"
           whileHover={{ rotate: 360 }}
           transition={{ duration: 0.8 }}
-          onError={(e) => {
-            e.target.src = "https://via.placeholder.com/48";
-          }}
+          onError={(e) => (e.target.src = "https://via.placeholder.com/48")}
         />
       </div>
       <div className="space-y-4">
@@ -115,13 +92,11 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("rate");
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState("NGN");
   const [filteredCryptos, setFilteredCryptos] = useState([]);
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
   const { userInfo } = useSelector((state) => state.auth);
-  const [createTransaction, { isLoading: isCreatingTransaction }] =
-    useCreateTransactionMutation();
+  const [createTransaction] = useCreateTransactionMutation();
 
   useEffect(() => {
     if (cryptos) {
@@ -137,40 +112,7 @@ const Home = () => {
     }
   }, [cryptos, searchQuery, sortBy]);
 
-  useEffect(() => {
-    socket.on("cryptoAdded", (newCrypto) => {
-      setFilteredCryptos((prev) => [...prev, newCrypto]);
-    });
-    socket.on("cryptoUpdated", (updatedCrypto) => {
-      setFilteredCryptos((prev) =>
-        prev.map((crypto) =>
-          crypto._id === updatedCrypto._id ? updatedCrypto : crypto
-        )
-      );
-    });
-    socket.on("cryptoDeleted", (deletedCryptoId) => {
-      setFilteredCryptos((prev) =>
-        prev.filter((crypto) => crypto._id !== deletedCryptoId)
-      );
-    });
-    socket.on("transactionCreated", () => {
-      // Optionally refetch cryptos or notify user
-    });
-    socket.on("transactionUpdated", () => {
-      // Optionally refetch cryptos or notify user
-    });
-
-    return () => {
-      socket.off("cryptoAdded");
-      socket.off("cryptoUpdated");
-      socket.off("cryptoDeleted");
-      socket.off("transactionCreated");
-      socket.off("transactionUpdated");
-    };
-  }, []);
-
-  const handleTradeClick = (crypto) => {
-    // If user is not logged in, prompt to log in
+  const handleTradeClick = async (crypto) => {
     if (!userInfo) {
       Swal.fire({
         title: "Authentication Required",
@@ -180,127 +122,51 @@ const Home = () => {
         confirmButtonText: "Log In",
         cancelButtonText: "Register",
       }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/login";
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
+        if (result.isConfirmed) window.location.href = "/login";
+        else if (result.dismiss === Swal.DismissReason.cancel)
           window.location.href = "/register";
-        }
       });
       return;
     }
 
-    Swal.fire({
+    const { value: quantity } = await Swal.fire({
       title: `Sell ${crypto.name}`,
-      html: `
-        <div class="space-y-4">
-          <div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
-            <span class="text-sm text-gray-700">Wallet Address:</span>
-            <div class="flex items-center">
-              <span class="text-sm font-mono text-gray-900">${crypto.walletAddress}</span>
-              <button id="swal-copy-button" class="ml-2 p-1 bg-gray-200 rounded hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm text-gray-700">Quantity to Sell</label>
-            <input
-              id="swal-quantity"
-              type="number"
-              placeholder="Enter quantity"
-              class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
-              step="0.01"
-            />
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm text-gray-700">Total Amount</label>
-            <input
-              id="swal-total-amount"
-              type="text"
-              readonly
-              class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
-            />
-          </div>
-          <button id="swal-sell-button" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-            Sell ${crypto.name}
-          </button>
-        </div>
-      `,
-      didOpen: () => {
-        const quantityInput = document.getElementById("swal-quantity");
-        const totalAmountInput = document.getElementById("swal-total-amount");
-
-        quantityInput.addEventListener("input", () => {
-          const quantity = parseFloat(quantityInput.value) || 0;
-          const totalAmount = (quantity * crypto.rate).toLocaleString("en-US", {
-            style: "currency",
-            currency: "NGN",
-          });
-          totalAmountInput.value = totalAmount;
-        });
-
-        document.getElementById("swal-copy-button").onclick = () => {
-          navigator.clipboard.writeText(crypto.walletAddress);
-          Swal.fire(
-            "Copied!",
-            "Wallet address copied to clipboard.",
-            "success"
-          );
-        };
-
-        document.getElementById("swal-sell-button").onclick = async () => {
-          const quantity = parseFloat(quantityInput.value) || 0;
-          if (quantity <= 0) {
-            Swal.fire("Error", "Please enter a valid quantity.", "error");
-            return;
-          }
-
-          const totalAmount = quantity * crypto.rate;
-          const transaction = {
-            cryptoName: crypto.name,
-            quantity,
-            totalAmount,
-            type: "crypto",
-          };
-
-          try {
-            // Make API call to create the transaction
-            await createTransaction(transaction).unwrap();
-
-            // Send WhatsApp message to admin
-            const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
-              crypto.name
-            )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
-              userInfo.username
-            }`;
-            window.open(`${adminWhatsAppBase}${message}`, "_blank");
-
-            Swal.fire(
-              "Success!",
-              `Your request to sell ${quantity} ${crypto.name} has been submitted.`,
-              "success"
-            ).then(() => {
-              Swal.close();
-            });
-          } catch (error) {
-            Swal.fire(
-              "Error",
-              error?.data?.message || "Failed to create transaction",
-              "error"
-            );
-          }
-        };
-      },
-      showConfirmButton: false,
-      customClass: {
-        popup: "rounded-lg shadow-xl",
-        htmlContainer: "text-left",
+      input: "number",
+      inputLabel: "Quantity",
+      inputPlaceholder: "Enter quantity",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value || value <= 0) return "Please enter a valid quantity.";
       },
     });
+
+    if (quantity) {
+      const totalAmount = quantity * crypto.rate;
+      try {
+        await createTransaction({
+          cryptoName: crypto.name,
+          quantity,
+          totalAmount,
+          type: "crypto",
+        }).unwrap();
+
+        // Send WhatsApp message to admin
+        const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
+          crypto.name
+        )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
+          userInfo.username
+        }`;
+        window.open(`${adminWhatsAppBase}${message}`, "_blank");
+
+        Swal.fire("Success!", "Transaction created successfully.", "success");
+      } catch (error) {
+        Swal.fire(
+          "Error",
+          error.data?.message || "Failed to create transaction",
+          "error"
+        );
+      }
+    }
   };
 
   if (isError) {
@@ -375,35 +241,6 @@ const Home = () => {
             <span>Filters</span>
           </button>
         </motion.div>
-
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            transition={{ duration: 0.5 }}
-            className="mb-10 p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-md"
-          >
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Filters
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Currency
-                </label>
-                <select
-                  value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
-                >
-                  <option value="NGN">NGN</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                </select>
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* Crypto Cards */}
         <motion.div
