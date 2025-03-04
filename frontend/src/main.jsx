@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import UserActivities from "./pages/UserActivities";
+import PageNotFound from "./components/pageNotFound";
 
 const router = createBrowserRouter([
   {
