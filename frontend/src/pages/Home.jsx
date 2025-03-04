@@ -1,4 +1,4 @@
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
 import { useGetCryptosQuery } from "../services/cryptoApi";
@@ -12,8 +12,9 @@ import { addTransaction } from "../services/tansactionSlice";
 // Expanded cryptoImages object with logos for common cryptocurrencies
 const cryptoImages = {
   Bitcoin: "https://cryptologos.cc/logos/bitcoin-btc-logo.png",
-  Ethereum: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-  Tether: "https://cryptologos.cc/logos/tether-usdt-logo.png",
+  Ethereum:
+    "https://cryptologos.cc/logos/versions/ethereum-eth-logo-colored.svg?v=040",
+  Tether: "https://cryptologos.cc/logos/tether-usdt-logo.png?v=040",
   "Binance Coin": "https://cryptologos.cc/logos/binance-coin-bnb-logo.png",
   Cardano: "https://cryptologos.cc/logos/cardano-ada-logo.png",
   XRP: "https://cryptologos.cc/logos/xrp-xrp-logo.png",
@@ -21,7 +22,92 @@ const cryptoImages = {
   Polkadot: "https://cryptologos.cc/logos/polkadot-new-dot-logo.png",
   Dogecoin: "https://cryptologos.cc/logos/dogecoin-doge-logo.png",
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
-  // Add more as needed based on your API data
+};
+
+// Card variants for staggered animation
+const cardVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.2,
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  }),
+};
+
+// Container variants for overall animation
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const CryptoCard = ({ crypto, index, handleTradeClick }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      animate={controls}
+      className="relative p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+      whileHover={{ scale: 1.05 }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-2xl font-bold text-gray-900">{crypto.name}</h3>
+        <motion.img
+          src={cryptoImages[crypto.name] || "https://via.placeholder.com/48"}
+          alt={crypto.name}
+          className="w-12 h-12 object-contain"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.8 }}
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/48";
+          }}
+        />
+      </div>
+      <div className="space-y-4">
+        <p className="text-gray-600 font-medium">
+          Rate:{" "}
+          <span className="text-blue-500">₦{crypto.rate.toLocaleString()}</span>
+        </p>
+      </div>
+      <motion.button
+        onClick={() => handleTradeClick(crypto)}
+        className="mt-6 w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 relative overflow-hidden group"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <span className="relative z-10">Sell Now</span>
+        <span className="absolute inset-0 bg-white opacity-20 transform scale-0 group-hover:scale-150 rounded-full transition-transform duration-300 ease-out"></span>
+        <motion.span
+          className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20"
+          initial={{ scale: 0 }}
+          whileHover={{ scale: 2 }}
+          transition={{ duration: 0.5 }}
+        />
+      </motion.button>
+    </motion.div>
+  );
 };
 
 const Home = () => {
@@ -33,8 +119,6 @@ const Home = () => {
   const [filteredCryptos, setFilteredCryptos] = useState([]);
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
-  const controls = useAnimation();
-  const [ref, inView] = useInView();
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -51,12 +135,6 @@ const Home = () => {
       );
     }
   }, [cryptos, searchQuery, sortBy]);
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
 
   useEffect(() => {
     socket.on("cryptoAdded", (newCrypto) => {
@@ -293,62 +371,23 @@ const Home = () => {
         )}
 
         {/* Crypto Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCryptos.map((crypto) => (
-            <motion.div
-              key={crypto._id}
-              ref={ref}
-              initial={{ opacity: 0, y: 20 }}
-              animate={controls}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              variants={{ visible: { opacity: 1, y: 0 } }}
-              className="relative p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {crypto.name}
-                </h3>
-                <motion.img
-                  src={
-                    cryptoImages[crypto.name] ||
-                    "https://via.placeholder.com/48"
-                  }
-                  alt={crypto.name}
-                  className="w-12 h-12 object-contain"
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.8 }}
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/48";
-                  }}
-                />
-              </div>
-              <div className="space-y-4">
-                <p className="text-gray-600 font-medium">
-                  Rate:{" "}
-                  <span className="text-blue-500">
-                    ₦{crypto.rate.toLocaleString()}
-                  </span>
-                </p>
-              </div>
-              <motion.button
-                onClick={() => handleTradeClick(crypto)}
-                className="mt-6 w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 relative overflow-hidden group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="relative z-10">Sell Now</span>
-                <span className="absolute inset-0 bg-white opacity-20 transform scale-0 group-hover:scale-150 rounded-full transition-transform duration-300 ease-out"></span>
-                <motion.span
-                  className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20"
-                  initial={{ scale: 0 }}
-                  whileHover={{ scale: 2 }}
-                  transition={{ duration: 0.5 }}
-                />
-              </motion.button>
-            </motion.div>
-          ))}
-        </div>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <AnimatePresence>
+            {filteredCryptos.map((crypto, index) => (
+              <CryptoCard
+                key={crypto._id}
+                crypto={crypto}
+                index={index}
+                handleTradeClick={handleTradeClick}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );
