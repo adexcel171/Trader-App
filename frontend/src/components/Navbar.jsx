@@ -65,6 +65,7 @@ const Navbar = () => {
     dispatch(logout());
     navigate("/login");
     setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   const handleUpdateStatus = async (id, status) => {
@@ -80,8 +81,11 @@ const Navbar = () => {
     }
   };
 
+  // Filter transactions for the logged-in user or all transactions for admin
   const userTransactions = userInfo
-    ? transactions?.filter((t) => t.userId === userInfo._id).slice(0, 3) || []
+    ? userInfo.isAdmin
+      ? transactions?.slice(0, 3) || [] // Show recent transactions for admin
+      : transactions?.filter((t) => t.userId === userInfo._id).slice(0, 3) || [] // Regular user's transactions
     : [];
 
   const modalVariants = {
@@ -106,6 +110,7 @@ const Navbar = () => {
               { to: "/dashboard", icon: FaChartLine, label: "Dashboard" },
               { to: "/markets", icon: FaChartLine, label: "Markets" },
               { to: "/wallet", icon: FaWallet, label: "Wallet" },
+              { to: "/profile", icon: FaUser, label: "Profile" }, // Always available
               ...(userInfo?.isAdmin
                 ? [
                     {
@@ -208,6 +213,15 @@ const Navbar = () => {
                 </Link>
               </div>
             )}
+            <div className="mt-4">
+              <Link
+                to="/profile"
+                className="block text-center p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={toggleProfileModal}
+              >
+                Go to Profile
+              </Link>
+            </div>
             <button
               onClick={handleLogout}
               className="mt-4 w-full flex items-center justify-center p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300"
@@ -295,6 +309,7 @@ const Navbar = () => {
                   { to: "/dashboard", icon: FaChartLine, label: "Dashboard" },
                   { to: "/markets", icon: FaChartLine, label: "Markets" },
                   { to: "/wallet", icon: FaWallet, label: "Wallet" },
+                  { to: "/profile", icon: FaUser, label: "Profile" },
                   ...(userInfo?.isAdmin
                     ? [
                         {
@@ -304,7 +319,6 @@ const Navbar = () => {
                         },
                       ]
                     : []),
-                  { to: "/profile", icon: FaUser, label: "Profile" },
                 ].map((item) => (
                   <Link
                     key={item.to}
