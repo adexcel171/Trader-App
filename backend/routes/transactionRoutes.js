@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middlewares/authMiddleware.js");
-const Transaction = require("../models/transactionModel.js");
+const Transaction = require("../models/Transaction.js");
 
 // Admin-restricted route to fetch all transactions
 router.get(
