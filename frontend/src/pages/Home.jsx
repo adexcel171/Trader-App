@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
@@ -153,7 +154,6 @@ const Home = () => {
   }, []);
 
   const handleTradeClick = (crypto) => {
-    // If user is not logged in, prompt to log in
     if (!userInfo) {
       Swal.fire({
         title: "Authentication Required",
@@ -251,10 +251,9 @@ const Home = () => {
           };
 
           try {
-            // Make API call to create the transaction
+            console.log("Creating transaction:", transaction); // Debugging
             await createTransaction(transaction).unwrap();
 
-            // Send WhatsApp message to admin
             const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
               crypto.name
             )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
@@ -270,6 +269,7 @@ const Home = () => {
               Swal.close();
             });
           } catch (error) {
+            console.error("Transaction error:", error); // Debugging
             Swal.fire(
               "Error",
               error?.data?.message || "Failed to create transaction",
@@ -301,7 +301,6 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
       <div className="container mx-auto">
-        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -316,7 +315,6 @@ const Home = () => {
           </p>
         </motion.div>
 
-        {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -388,7 +386,6 @@ const Home = () => {
           </motion.div>
         )}
 
-        {/* Crypto Cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
