@@ -28,7 +28,9 @@ const router = createBrowserRouter([
       { path: "/portfolio", element: <CryptoPortfolio /> },
       { path: "/wallet", element: <WalletAccounts /> },
       { path: "/profile", element: <Profile /> },
+
       { path: "/activities", element: <UserActivities /> },
+      { path: "*", element: <PageNotFound /> },
     ],
   },
 ]);

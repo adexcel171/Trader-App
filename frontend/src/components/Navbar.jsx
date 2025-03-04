@@ -1,8 +1,13 @@
+// src/components/Navbar.js
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../services/authSlice";
-import { updateTransactionStatus } from "../services/tansactionSlice"; // Corrected import
 import { Link, useNavigate } from "react-router-dom";
+import {
+  useUpdateTransactionStatusMutation,
+  useGetAllTransactionsQuery,
+} from "../services/transactionApi";
+import socket from "../services/socket";
 import {
   FaChartLine,
   FaWallet,
@@ -18,9 +23,35 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { userInfo } = useSelector((state) => state.auth);
-  const transactions = useSelector((state) => state.transactions.transactions);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { data: transactions, refetch } = useGetAllTransactionsQuery(
+    undefined,
+    {
+      skip: !userInfo?.isAdmin,
+    }
+  );
+  const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
+
+  React.useEffect(() => {
+    socket.on("transactionUpdated", () => {
+      if (userInfo?.isAdmin) {
+        refetch();
+      }
+    });
+
+    socket.on("transactionCreated", () => {
+      if (userInfo?.isAdmin) {
+        refetch();
+      }
+    });
+
+    return () => {
+      socket.off("transactionUpdated");
+      socket.off("transactionCreated");
+    };
+  }, [userInfo]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -36,17 +67,21 @@ const Navbar = () => {
     setIsProfileOpen(false);
   };
 
-  const handleUpdateStatus = (id, status) => {
+  const handleUpdateStatus = async (id, status) => {
     if (userInfo?.isAdmin) {
-      dispatch(updateTransactionStatus({ id, status }));
-      toast.success(`Transaction marked as ${status}`);
+      try {
+        await updateTransactionStatus({ id, status }).unwrap();
+        toast.success(`Transaction marked as ${status}`);
+      } catch (error) {
+        toast.error(error?.data?.message || "Failed to update status");
+      }
     } else {
       toast.error("Only admins can update transaction status");
     }
   };
 
   const userTransactions = userInfo
-    ? transactions.filter((t) => t.userId === userInfo._id).slice(0, 3)
+    ? transactions?.filter((t) => t.userId === userInfo._id).slice(0, 3) || []
     : [];
 
   const modalVariants = {
@@ -128,7 +163,7 @@ const Navbar = () => {
                 <ul className="space-y-3">
                   {userTransactions.map((transaction) => (
                     <li
-                      key={transaction.id}
+                      key={transaction._id}
                       className="text-sm bg-gray-50 p-3 rounded-lg shadow-sm"
                     >
                       <p>
@@ -150,7 +185,7 @@ const Navbar = () => {
                         transaction.status === "pending" && (
                           <button
                             onClick={() =>
-                              handleUpdateStatus(transaction.id, "completed")
+                              handleUpdateStatus(transaction._id, "completed")
                             }
                             className="mt-2 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
                           >
@@ -162,6 +197,17 @@ const Navbar = () => {
                 </ul>
               )}
             </div>
+            {userInfo?.isAdmin && (
+              <div className="mt-4">
+                <Link
+                  to="/activities"
+                  className="block text-center p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={toggleProfileModal}
+                >
+                  View All Transactions
+                </Link>
+              </div>
+            )}
             <button
               onClick={handleLogout}
               className="mt-4 w-full flex items-center justify-center p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300"
@@ -220,7 +266,7 @@ const Navbar = () => {
         </div>
         {isMobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-50 bg-white text-gray-800 flex flex-col overflow-y-auto" // Added overflow-y-auto to allow scrolling
+            className="fixed inset-0 z-50 bg-white text-gray-800 flex flex-col overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -238,8 +284,6 @@ const Navbar = () => {
               </button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto min-h-0">
-              {" "}
-              {/* Added overflow-y-auto and min-h-0 to ensure content can scroll */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold flex items-center text-gray-900">
                   <FaUser className="mr-2 text-blue-500" />{" "}
@@ -286,7 +330,7 @@ const Navbar = () => {
                   <ul className="space-y-3">
                     {userTransactions.map((transaction) => (
                       <li
-                        key={transaction.id}
+                        key={transaction._id}
                         className="text-sm bg-gray-50 p-3 rounded-lg shadow-sm"
                       >
                         <p>
@@ -308,7 +352,7 @@ const Navbar = () => {
                           transaction.status === "pending" && (
                             <button
                               onClick={() =>
-                                handleUpdateStatus(transaction.id, "completed")
+                                handleUpdateStatus(transaction._id, "completed")
                               }
                               className="mt-2 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
                             >

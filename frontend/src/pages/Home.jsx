@@ -6,8 +6,8 @@ import { Search, Filter, ChevronDown, Copy } from "lucide-react";
 import Loader from "../components/Loader";
 import Swal from "sweetalert2";
 import socket from "../services/socket";
-import { useSelector, useDispatch } from "react-redux";
-import { addTransaction } from "../services/tansactionSlice";
+import { useSelector } from "react-redux";
+import { useCreateTransactionMutation } from "../services/transactionApi"; // Import RTK Query mutation
 
 // Expanded cryptoImages object with logos for common cryptocurrencies
 const cryptoImages = {
@@ -120,7 +120,8 @@ const Home = () => {
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
   const { userInfo } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const [createTransaction, { isLoading: isCreatingTransaction }] =
+    useCreateTransactionMutation();
 
   useEffect(() => {
     if (cryptos) {
@@ -152,14 +153,42 @@ const Home = () => {
         prev.filter((crypto) => crypto._id !== deletedCryptoId)
       );
     });
+    socket.on("transactionCreated", () => {
+      // Optionally refetch cryptos or notify user
+    });
+    socket.on("transactionUpdated", () => {
+      // Optionally refetch cryptos or notify user
+    });
+
     return () => {
       socket.off("cryptoAdded");
       socket.off("cryptoUpdated");
       socket.off("cryptoDeleted");
+      socket.off("transactionCreated");
+      socket.off("transactionUpdated");
     };
   }, []);
 
   const handleTradeClick = (crypto) => {
+    // If user is not logged in, prompt to log in
+    if (!userInfo) {
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please log in or register to perform this action.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Log In",
+        cancelButtonText: "Register",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/login";
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          window.location.href = "/register";
+        }
+      });
+      return;
+    }
+
     Swal.fire({
       title: `Sell ${crypto.name}`,
       html: `
@@ -223,7 +252,7 @@ const Home = () => {
           );
         };
 
-        document.getElementById("swal-sell-button").onclick = () => {
+        document.getElementById("swal-sell-button").onclick = async () => {
           const quantity = parseFloat(quantityInput.value) || 0;
           if (quantity <= 0) {
             Swal.fire("Error", "Please enter a valid quantity.", "error");
@@ -232,32 +261,38 @@ const Home = () => {
 
           const totalAmount = quantity * crypto.rate;
           const transaction = {
-            id: Date.now().toString(),
             cryptoName: crypto.name,
             quantity,
             totalAmount,
-            status: "pending",
-            date: new Date().toISOString(),
-            userId: userInfo ? userInfo._id : null,
-            userName: userInfo ? userInfo.username : "Guest",
             type: "crypto",
           };
-          dispatch(addTransaction(transaction));
 
-          const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
-            crypto.name
-          )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
-            transaction.userName
-          }`;
-          window.open(`${adminWhatsAppBase}${message}`, "_blank");
+          try {
+            // Make API call to create the transaction
+            await createTransaction(transaction).unwrap();
 
-          Swal.fire(
-            "Success!",
-            `Your request to sell ${quantity} ${crypto.name} has been submitted.`,
-            "success"
-          ).then(() => {
-            Swal.close();
-          });
+            // Send WhatsApp message to admin
+            const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
+              crypto.name
+            )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
+              userInfo.username
+            }`;
+            window.open(`${adminWhatsAppBase}${message}`, "_blank");
+
+            Swal.fire(
+              "Success!",
+              `Your request to sell ${quantity} ${crypto.name} has been submitted.`,
+              "success"
+            ).then(() => {
+              Swal.close();
+            });
+          } catch (error) {
+            Swal.fire(
+              "Error",
+              error?.data?.message || "Failed to create transaction",
+              "error"
+            );
+          }
         };
       },
       showConfirmButton: false,

@@ -7,6 +7,7 @@ const path = require("path");
 const http = require("http");
 const initializeSocket = require("./socket/socket");
 const userRoutes = require("./routes/userRoutes.js");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 const app = express();
 
@@ -65,6 +66,7 @@ mongoose
 // API routes
 app.use("/api/cryptos", require("./routes/cryptoRoutes"));
 app.use("/api/users", userRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // ✅ Serve React Frontend in Production
 if (process.env.NODE_ENV === "production") {
