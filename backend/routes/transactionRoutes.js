@@ -12,15 +12,23 @@ const {
   authorizeAdmin,
 } = require("../middlewares/authMiddleware");
 
+// Debug: Log imported controllers to ensure they are defined
+console.log("Imported controllers:", {
+  createTransaction,
+  updateTransactionStatus,
+  getUserTransactions,
+  getAllTransactions,
+});
+
 router
   .route("/")
-  .post(authenticate, createTransaction) // Use authenticate instead of protect
-  .get(authenticate, authorizeAdmin, getAllTransactions); // Use authenticate and authorizeAdmin
+  .post(authenticate, createTransaction)
+  .get(authenticate, authorizeAdmin, getAllTransactions);
 
-router.route("/mytransactions").get(authenticate, getUserTransactions); // Use authenticate instead of protect
+router.route("/mytransactions").get(authenticate, getUserTransactions);
 
 router
   .route("/:id/status")
-  .put(authenticate, authorizeAdmin, updateTransactionStatus); // Use authenticate and authorizeAdmin
+  .put(authenticate, authorizeAdmin, updateTransactionStatus);
 
 module.exports = router;

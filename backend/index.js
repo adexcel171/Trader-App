@@ -68,6 +68,12 @@ app.use("/api/cryptos", require("./routes/cryptoRoutes"));
 app.use("/api/users", userRoutes);
 app.use("/api/transactions", transactionRoutes);
 
+/ Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error("Server error:", err.stack);
+  res.status(500).json({ message: "Something broke!", error: err.message });
+});
+
 // ✅ Serve React Frontend in Production
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/dist");
