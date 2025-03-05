@@ -19,65 +19,33 @@ const Profile = () => {
   const [search, setSearch] = useState("");
 
   const queryParams = { page, limit, startDate, endDate, search };
-  const {
-    data: userData,
-    isLoading: userLoading,
-    error: userError,
-    refetch: refetchUser,
-    isFetching: userFetching,
-  } = useGetUserTransactionsQuery(queryParams);
-  const {
-    data: adminData,
-    isLoading: adminLoading,
-    error: adminError,
-    refetch: refetchAdmin,
-    isFetching: adminFetching,
-  } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
+  const { data, isLoading, error, refetch, isFetching } = userInfo?.isAdmin
+    ? useGetAllTransactionsQuery(queryParams)
+    : useGetUserTransactionsQuery(queryParams);
 
-  const data = userInfo?.isAdmin ? adminData : userData;
   const transactions = Array.isArray(data?.transactions)
     ? data.transactions
     : [];
   const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
-  const isLoading = userInfo?.isAdmin ? adminLoading : userLoading;
-  const isFetching = userInfo?.isAdmin ? adminFetching : userFetching;
-  const error = userInfo?.isAdmin ? adminError : userError;
-  const refetch = userInfo?.isAdmin ? refetchAdmin : refetchUser;
 
   useEffect(() => {
-    socket.on("transactionUpdated", (updatedTransaction) => {
-      console.log("Received transactionUpdated event:", updatedTransaction);
+    socket.on("transactionUpdated", () => {
       refetch();
-    });
-
-    socket.on("connect", () => {
-      console.log("Socket.IO connected in Profile:", socket.id);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Socket.IO disconnected in Profile");
     });
 
     return () => {
       socket.off("transactionUpdated");
-      socket.off("connect");
-      socket.off("disconnect");
     };
   }, [refetch]);
 
-  const handleUpdateStatus = async (id, status) => {
-    if (!userInfo?.isAdmin) {
-      toast.error("Only admins can update transaction status");
-      return;
-    }
-
-    try {
-      await updateTransactionStatus({ id, status }).unwrap();
-      toast.success(`Transaction marked as ${status}`);
-    } catch (error) {
-      toast.error(error?.data?.message || "Failed to update status");
-    }
-  };
+  if (isLoading || isFetching) return <div>Loading...</div>;
+  if (error)
+    return (
+      <div>
+        Error loading transactions:{" "}
+        {error?.data?.message || error?.message || "Unknown error"}
+      </div>
+    );
 
   const csvData = transactions.map((t) => ({
     Crypto: t.cryptoName || "N/A",
@@ -89,21 +57,6 @@ const Profile = () => {
     User: t.userId?.email || t.userId?.username || t.userName || "Unknown",
     Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
-
-  if (isLoading || isFetching) return <div>Loading...</div>;
-  if (error)
-    return (
-      <div>
-        Error loading transactions:{" "}
-        {error?.data?.message || error?.message || "Unknown error"}
-      </div>
-    );
-
-  console.log("Profile - userInfo:", userInfo);
-  console.log("Profile - isLoading:", isLoading, "isFetching:", isFetching);
-  console.log("Profile - error:", error);
-  console.log("Profile - data:", data);
-  console.log("Profile - transactions:", transactions);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">

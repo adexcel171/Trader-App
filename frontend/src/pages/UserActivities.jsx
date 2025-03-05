@@ -36,17 +36,6 @@ const UserActivities = () => {
       <div>Error loading transactions: {error?.message || "Unknown error"}</div>
     );
 
-  console.log("UserActivities - userInfo:", userInfo);
-  console.log(
-    "UserActivities - isLoading:",
-    isLoading,
-    "isFetching:",
-    isFetching
-  );
-  console.log("UserActivities - error:", error);
-  console.log("UserActivities - data:", data);
-  console.log("UserActivities - transactions:", transactions);
-
   const csvData = transactions.map((t) => ({
     Crypto: t.cryptoName || "N/A",
     Quantity: t.quantity || 0,
@@ -59,72 +48,36 @@ const UserActivities = () => {
   }));
 
   return (
-    <div
-      style={{
-        padding: "1.5rem",
-        backgroundColor: "white",
-        borderRadius: "0.5rem",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <h2
-        style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1rem" }}
-      >
-        Your Transactions
-      </h2>
+    <div className="p-6 bg-white rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-6">Your Transactions</h2>
 
-      <div
-        style={{
-          marginBottom: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-        }}
-      >
+      <div className="mb-4 flex flex-col gap-2">
         <input
           type="text"
           placeholder="Search by crypto or user..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.25rem",
-          }}
+          className="p-2 border rounded"
         />
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div className="flex gap-2">
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.25rem",
-            }}
+            className="p-2 border rounded"
           />
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.25rem",
-            }}
+            className="p-2 border rounded"
           />
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${
               endDate || "now"
             }.csv`}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              borderRadius: "0.25rem",
-              textDecoration: "none",
-            }}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Download CSV
           </CSVLink>
@@ -135,138 +88,52 @@ const UserActivities = () => {
         <p>No transactions found.</p>
       ) : (
         <>
-          <div style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                minWidth: "100%",
-                backgroundColor: "white",
-                border: "1px solid #e5e7eb",
-              }}
-            >
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
               <thead>
-                <tr style={{ backgroundColor: "#f3f4f6" }}>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    Crypto
-                  </th>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    Quantity
-                  </th>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    Total Amount
-                  </th>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    User
-                  </th>
-                  <th
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderBottom: "1px solid #e5e7eb",
-                    }}
-                  >
-                    Date
-                  </th>
+                <tr className="bg-gray-100">
+                  <th className="py-2 px-4 border-b">Crypto</th>
+                  <th className="py-2 px-4 border-b">Quantity</th>
+                  <th className="py-2 px-4 border-b">Total Amount</th>
+                  <th className="py-2 px-4 border-b">Status</th>
+                  <th className="py-2 px-4 border-b">User</th>
+                  <th className="py-2 px-4 border-b">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.map((transaction) => (
-                  <tr
-                    key={transaction._id}
-                    style={{ "&:hover": { backgroundColor: "#f9fafb" } }}
-                  >
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                  <tr key={transaction._id} className="hover:bg-gray-50">
+                    <td className="py-2 px-4 border-b">
                       {transaction.cryptoName || "N/A"}
                     </td>
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                    <td className="py-2 px-4 border-b">
                       {transaction.quantity || 0}
                     </td>
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                    <td className="py-2 px-4 border-b">
                       {transaction.totalAmount
                         ? `₦${transaction.totalAmount.toLocaleString()}`
                         : "N/A"}
                     </td>
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                    <td className="py-2 px-4 border-b">
                       <span
-                        style={{
-                          padding: "0.25rem 0.5rem",
-                          borderRadius: "0.25rem",
-                          backgroundColor:
-                            transaction.status === "pending"
-                              ? "#fef9c3"
-                              : "#dcfce7",
-                          color:
-                            transaction.status === "pending"
-                              ? "#854d0e"
-                              : "#15803d",
-                        }}
+                        className={`px-2 py-1 rounded ${
+                          transaction.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : transaction.status === "delivered"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
                       >
                         {transaction.status || "N/A"}
                       </span>
                     </td>
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                    <td className="py-2 px-4 border-b">
                       {transaction.userId?.email ||
                         transaction.userId?.username ||
                         transaction.userName ||
                         "Unknown"}
                     </td>
-                    <td
-                      style={{
-                        padding: "0.5rem 1rem",
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
-                    >
+                    <td className="py-2 px-4 border-b">
                       {transaction.createdAt
                         ? new Date(transaction.createdAt).toLocaleString()
                         : "N/A"}
@@ -277,22 +144,11 @@ const UserActivities = () => {
             </table>
           </div>
 
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
+          <div className="mt-4 flex justify-between">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                borderRadius: "0.25rem",
-                opacity: page === 1 ? 0.5 : 1,
-              }}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
             >
               Previous
             </button>
@@ -302,12 +158,7 @@ const UserActivities = () => {
             <button
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                borderRadius: "0.25rem",
-                opacity: page === totalPages ? 0.5 : 1,
-              }}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
             >
               Next
             </button>
