@@ -25,6 +25,10 @@ const cryptoImages = {
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
 
+// Fallback image (use a reliable URL or local asset)
+const FALLBACK_IMAGE_URL = "https://placehold.co/48x48"; // Reliable placeholder service
+// Alternatively, use a local asset: "/images/fallback.png"
+
 // Animation variants
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -43,10 +47,21 @@ const containerVariants = {
 const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [imageSrc, setImageSrc] = useState(
+    cryptoImages[crypto.name] || FALLBACK_IMAGE_URL
+  );
+  const [hasFailed, setHasFailed] = useState(false); // Track if image load failed
 
   useEffect(() => {
     if (inView) controls.start("visible");
   }, [controls, inView]);
+
+  const handleImageError = (e) => {
+    if (!hasFailed) {
+      setHasFailed(true);
+      setImageSrc(FALLBACK_IMAGE_URL); // Set fallback only once
+    }
+  };
 
   return (
     <motion.div
@@ -61,12 +76,12 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-2xl font-bold text-gray-900">{crypto.name}</h3>
         <motion.img
-          src={cryptoImages[crypto.name] || "https://via.placeholder.com/48"}
+          src={imageSrc}
           alt={crypto.name}
           className="w-12 h-12 object-contain"
           whileHover={{ rotate: 360 }}
           transition={{ duration: 0.8 }}
-          onError={(e) => (e.target.src = "https://via.placeholder.com/48")}
+          onError={handleImageError}
         />
       </div>
       <div className="space-y-4">
@@ -251,7 +266,7 @@ const Home = () => {
           };
 
           try {
-            console.log("Creating transaction:", transaction); // Debugging
+            console.log("Creating transaction:", transaction);
             await createTransaction(transaction).unwrap();
 
             const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
@@ -269,7 +284,7 @@ const Home = () => {
               Swal.close();
             });
           } catch (error) {
-            console.error("Transaction error:", error); // Debugging
+            console.error("Transaction error:", error);
             Swal.fire(
               "Error",
               error?.data?.message || "Failed to create transaction",
