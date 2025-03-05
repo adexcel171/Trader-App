@@ -25,21 +25,24 @@ const Profile = () => {
     isLoading: userLoading,
     error: userError,
     refetch: refetchUser,
+    isFetching: userFetching,
   } = useGetUserTransactionsQuery(queryParams);
   const {
     data: adminData,
     isLoading: adminLoading,
     error: adminError,
     refetch: refetchAdmin,
+    isFetching: adminFetching,
   } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
 
-  // Robust data handling
+  // Ultra-robust data handling
   const data = userInfo?.isAdmin ? adminData : userData;
   const transactions = Array.isArray(data?.transactions)
     ? data.transactions
     : [];
   const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
   const isLoading = userInfo?.isAdmin ? adminLoading : userLoading;
+  const isFetching = userInfo?.isAdmin ? adminFetching : userFetching;
   const error = userInfo?.isAdmin ? adminError : userError;
   const refetch = userInfo?.isAdmin ? refetchAdmin : refetchUser;
 
@@ -89,16 +92,21 @@ const Profile = () => {
     Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
 
-  if (isLoading) return <div>Loading...</div>;
+  // Log for debugging
+  console.log("Profile - userInfo:", userInfo);
+  console.log("Profile - isLoading:", isLoading, "isFetching:", isFetching);
+  console.log("Profile - error:", error);
+  console.log("Profile - data:", data);
+  console.log("Profile - transactions:", transactions);
+
+  if (isLoading || isFetching) return <div>Loading...</div>;
   if (error)
     return (
       <div>
-        Error loading transactions: {error?.data?.message || "Unknown error"}
+        Error loading transactions:{" "}
+        {error?.data?.message || error?.message || "Unknown error"}
       </div>
     );
-
-  console.log("Profile data:", data);
-  console.log("Transactions:", transactions);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">

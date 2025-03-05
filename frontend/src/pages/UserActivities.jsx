@@ -13,13 +13,8 @@ const UserActivities = () => {
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  const { data, isLoading, error, refetch } = useGetUserTransactionsQuery({
-    page,
-    limit,
-    startDate,
-    endDate,
-    search,
-  });
+  const { data, isLoading, error, refetch, isFetching } =
+    useGetUserTransactionsQuery({ page, limit, startDate, endDate, search });
 
   const transactions = Array.isArray(data?.transactions)
     ? data.transactions
@@ -36,14 +31,23 @@ const UserActivities = () => {
     };
   }, [refetch]);
 
-  if (isLoading) return <div>Loading...</div>;
+  // Log for debugging
+  console.log("UserActivities - userInfo:", userInfo);
+  console.log(
+    "UserActivities - isLoading:",
+    isLoading,
+    "isFetching:",
+    isFetching
+  );
+  console.log("UserActivities - error:", error);
+  console.log("UserActivities - data:", data);
+  console.log("UserActivities - transactions:", transactions);
+
+  if (isLoading || isFetching) return <div>Loading...</div>;
   if (error)
     return (
       <div>Error loading transactions: {error?.message || "Unknown error"}</div>
     );
-
-  console.log("UserActivities data:", data);
-  console.log("Transactions:", transactions);
 
   const csvData = transactions.map((t) => ({
     Crypto: t.cryptoName || "N/A",
