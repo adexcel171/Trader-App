@@ -1,4 +1,3 @@
-// backend/routes/transactionRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -7,15 +6,20 @@ const {
   getUserTransactions,
   getAllTransactions,
 } = require("../controllers/transactionController");
-const { authenticate } = require("../middlewares/authMiddleware");
+const {
+  authenticate,
+  authorizeAdmin,
+} = require("../middlewares/authMiddleware");
 
 router
   .route("/")
-  .post(authenticate, createTransaction) // Use authenticate instead of protect
-  .get(authenticate, getAllTransactions); // Use authenticate and authorizeAdmin
+  .post(authenticate, createTransaction)
+  .get(authenticate, authorizeAdmin, getAllTransactions); // Added authorizeAdmin for admin-only access
 
-router.route("/mytransactions").get(authenticate, getUserTransactions); // Use authenticate instead of protect
+router.route("/mytransactions").get(authenticate, getUserTransactions);
 
-router.route("/:id/status").put(authenticate, updateTransactionStatus); // Use authenticate and authorizeAdmin
+router
+  .route("/:id/status")
+  .put(authenticate, authorizeAdmin, updateTransactionStatus); // Added authorizeAdmin
 
 module.exports = router;
