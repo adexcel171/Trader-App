@@ -54,7 +54,7 @@ const updateTransactionStatus = asyncHandler(async (req, res) => {
   transaction.lastModified = Date.now();
   const updatedTransaction = await transaction.save();
 
-  socket.getIO().emit("transactionUpdated", updatedTransaction); // Broadcast to all clients
+  socket.getIO().emit("transactionUpdated", updatedTransaction);
   res.status(200).json(updatedTransaction);
 });
 
@@ -64,6 +64,7 @@ const getUserTransactions = asyncHandler(async (req, res) => {
   }
 
   const { page = 1, limit = 10, startDate, endDate, search } = req.query;
+
   const query = {
     $or: [
       { userId: req.user._id },
@@ -90,15 +91,22 @@ const getUserTransactions = asyncHandler(async (req, res) => {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
     sort: { createdAt: -1 }, // Newest first
-    populate: "userId", // Populate username/email
+    populate: { path: "userId", select: "username email" }, // Populate username and email
   };
 
-  const transactions = await Transaction.paginate(query, options);
-  res.status(200).json({
-    transactions: transactions.docs,
-    totalPages: transactions.totalPages,
-    currentPage: transactions.page,
-  });
+  try {
+    const result = await Transaction.paginate(query, options);
+    res.status(200).json({
+      transactions: result.docs,
+      totalPages: result.totalPages,
+      currentPage: result.page,
+    });
+  } catch (err) {
+    console.error("Error in getUserTransactions:", err);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch transactions", error: err.message });
+  }
 });
 
 const getAllTransactions = asyncHandler(async (req, res) => {

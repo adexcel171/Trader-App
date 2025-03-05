@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const transactionSchema = mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false, // Optional for guests
+      required: false,
     },
     userName: {
       type: String,
-      required: false, // Make optional
-      default: "guest", // Default to "guest"
+      required: false,
+      default: "guest",
     },
     cryptoName: {
       type: String,
@@ -26,7 +27,7 @@ const transactionSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "completed", "cancelled"],
+      enum: ["pending", "delivered", "cancelled"],
       default: "pending",
     },
     type: {
@@ -41,5 +42,7 @@ const transactionSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+transactionSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Transaction", transactionSchema);
