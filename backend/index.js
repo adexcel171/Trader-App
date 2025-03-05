@@ -5,17 +5,17 @@ const axios = require("axios");
 require("dotenv").config();
 const path = require("path");
 const http = require("http");
-const initializeSocket = require("./socket/socket");
+const socket = require("./socket/socket"); // Renamed to avoid confusion with 'io'
 const userRoutes = require("./routes/userRoutes.js");
 const transactionRoutes = require("./routes/transactionRoutes");
 const cookieParser = require("cookie-parser");
 const app = express();
 
-// ✅ Apply CORS Middleware First
+// Apply CORS Middleware First
 const allowedOrigins = [
   "https://cryptomarket-n3eh.onrender.com",
   process.env.NODE_ENV === "development" && "http://localhost:5173",
-].filter(Boolean); // Remove false values (e.g., if NODE_ENV !== "development")
+].filter(Boolean);
 
 app.use(
   cors({
@@ -28,14 +28,15 @@ app.use(
 );
 
 app.use(express.json());
-app.use(cookieParser()); // Add this line
-// ✅ Create HTTP Server
+app.use(cookieParser());
+
+// Create HTTP Server
 const server = http.createServer(app);
 
-// ✅ Initialize Socket.io and pass the app object
-initializeSocket(server, app);
+// Initialize Socket.IO
+socket.init(server, app);
 
-// ✅ Ensure Axios is Imported
+// Ensure Axios is Imported
 app.get("/api/top-cryptos", async (req, res) => {
   try {
     const response = await axios.get(
@@ -73,12 +74,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something broke!", error: err.message });
 });
 
-// ✅ Serve React Frontend in Production
+// Serve React Frontend in Production
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
 
-  // ✅ Handle React Routes Properly
   app.get("*", (req, res) => {
     if (!req.path.startsWith("/api") && req.accepts("html")) {
       res.sendFile(path.join(frontendPath, "index.html"));

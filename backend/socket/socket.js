@@ -1,44 +1,36 @@
 const { Server } = require("socket.io");
 
-function initializeSocket(server, app) {
-  const io = new Server(server, {
-    cors: {
-      origin: "https://cryptomarket-n3eh.onrender.com", // Single origin for Socket.IO
-      methods: ["GET", "POST"],
-      credentials: true, // Optional: Include if you need cookies/auth headers
-    },
-  });
+let io; // Store the io instance globally within the module
 
-  // Attach io to the app object
-  app.set("io", io);
-
-  io.on("connection", (socket) => {
-    console.log("A user connected:", socket.id);
-
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
+const initializeSocket = {
+  init: (server) => {
+    io = new Server(server, {
+      cors: {
+        origin: [
+          "https://cryptomarket-n3eh.onrender.com",
+          process.env.NODE_ENV === "development" && "http://localhost:5173",
+        ].filter(Boolean), // Match your CORS setup in index.js
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
     });
-  });
-  // backend/socket.js
 
-  module.exports = {
-    init: (httpServer) => {
-      io = require("socket.io")(httpServer, {
-        cors: {
-          origin: process.env.CLIENT_URL || "http://localhost:3000",
-          methods: ["GET", "POST"],
-        },
+    io.on("connection", (socket) => {
+      console.log("A user connected:", socket.id);
+      socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
       });
-      return io;
-    },
-    getIO: () => {
-      if (!io) {
-        throw new Error("Socket.io not initialized!");
-      }
-      return io;
-    },
-  };
-  return io;
-}
+    });
+
+    console.log("Socket.IO initialized"); // For debugging
+    return io; // Return io for immediate use if needed
+  },
+  getIO: () => {
+    if (!io) {
+      throw new Error("Socket.IO not initialized!");
+    }
+    return io;
+  },
+};
 
 module.exports = initializeSocket;

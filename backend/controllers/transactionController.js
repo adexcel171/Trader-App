@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Transaction = require("../models/Transaction");
-const io = require("../socket/socket");
+const socket = require("../socket/socket"); // Import the socket module
 
 const createTransaction = asyncHandler(async (req, res) => {
   const { cryptoName, quantity, totalAmount, type, userName } = req.body;
@@ -12,8 +12,8 @@ const createTransaction = asyncHandler(async (req, res) => {
 
   // Use provided userName or default to "guest" if no authenticated user
   const transactionData = {
-    userId: req.user?._id || null, // Optional: null for guests
-    userName: userName || req.user?.name || "guest", // Default to "guest" if no userName or req.user
+    userId: req.user?._id || null,
+    userName: userName || req.user?.name || "guest",
     cryptoName,
     quantity,
     totalAmount,
@@ -25,7 +25,7 @@ const createTransaction = asyncHandler(async (req, res) => {
   const transaction = await Transaction.create(transactionData);
 
   if (transaction) {
-    io.getIO().emit("transactionCreated", transaction);
+    socket.getIO().emit("transactionCreated", transaction); // Use socket.getIO()
     res.status(201).json(transaction);
   } else {
     res.status(400).json({ message: "Invalid transaction data" });
@@ -51,7 +51,7 @@ const updateTransactionStatus = asyncHandler(async (req, res) => {
   transaction.lastModified = Date.now();
   const updatedTransaction = await transaction.save();
 
-  io.getIO().emit("transactionUpdated", updatedTransaction);
+  socket.getIO().emit("transactionUpdated", updatedTransaction); // Use socket.getIO()
   res.status(200).json(updatedTransaction);
 });
 
