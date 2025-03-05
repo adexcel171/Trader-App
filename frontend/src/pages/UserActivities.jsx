@@ -11,7 +11,6 @@ const UserActivities = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc");
 
   const { data, isLoading, error, refetch, isFetching } =
     useGetUserTransactionsQuery({ page, limit, startDate, endDate, search });
@@ -31,7 +30,12 @@ const UserActivities = () => {
     };
   }, [refetch]);
 
-  // Log for debugging
+  if (isLoading || isFetching) return <div>Loading...</div>;
+  if (error)
+    return (
+      <div>Error loading transactions: {error?.message || "Unknown error"}</div>
+    );
+
   console.log("UserActivities - userInfo:", userInfo);
   console.log(
     "UserActivities - isLoading:",
@@ -42,12 +46,6 @@ const UserActivities = () => {
   console.log("UserActivities - error:", error);
   console.log("UserActivities - data:", data);
   console.log("UserActivities - transactions:", transactions);
-
-  if (isLoading || isFetching) return <div>Loading...</div>;
-  if (error)
-    return (
-      <div>Error loading transactions: {error?.message || "Unknown error"}</div>
-    );
 
   const csvData = transactions.map((t) => ({
     Crypto: t.cryptoName || "N/A",
@@ -115,18 +113,6 @@ const UserActivities = () => {
               borderRadius: "0.25rem",
             }}
           />
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.25rem",
-            }}
-          >
-            <option value="desc">Latest First</option>
-            <option value="asc">Oldest First</option>
-          </select>
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${

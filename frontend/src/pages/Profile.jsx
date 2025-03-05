@@ -17,7 +17,6 @@ const Profile = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc");
 
   const queryParams = { page, limit, startDate, endDate, search };
   const {
@@ -35,7 +34,6 @@ const Profile = () => {
     isFetching: adminFetching,
   } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
 
-  // Ultra-robust data handling
   const data = userInfo?.isAdmin ? adminData : userData;
   const transactions = Array.isArray(data?.transactions)
     ? data.transactions
@@ -92,13 +90,6 @@ const Profile = () => {
     Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
 
-  // Log for debugging
-  console.log("Profile - userInfo:", userInfo);
-  console.log("Profile - isLoading:", isLoading, "isFetching:", isFetching);
-  console.log("Profile - error:", error);
-  console.log("Profile - data:", data);
-  console.log("Profile - transactions:", transactions);
-
   if (isLoading || isFetching) return <div>Loading...</div>;
   if (error)
     return (
@@ -107,6 +98,12 @@ const Profile = () => {
         {error?.data?.message || error?.message || "Unknown error"}
       </div>
     );
+
+  console.log("Profile - userInfo:", userInfo);
+  console.log("Profile - isLoading:", isLoading, "isFetching:", isFetching);
+  console.log("Profile - error:", error);
+  console.log("Profile - data:", data);
+  console.log("Profile - transactions:", transactions);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
@@ -140,14 +137,6 @@ const Profile = () => {
             onChange={(e) => setEndDate(e.target.value)}
             className="p-2 border rounded"
           />
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="desc">Latest First</option>
-            <option value="asc">Oldest First</option>
-          </select>
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${
