@@ -6,7 +6,7 @@ import {
 } from "../services/transactionApi";
 import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
-import socket from "../services/socket"; // Import socket for real-time updates
+import socket from "../services/socket";
 
 const Profile = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -14,18 +14,28 @@ const Profile = () => {
     data: transactions,
     isLoading,
     error,
-    refetch, // For real-time updates
+    refetch,
   } = useGetUserTransactionsQuery();
   const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
-  // Real-time updates via Socket.IO
   useEffect(() => {
-    socket.on("transactionUpdated", () => {
-      refetch(); // Refetch transactions when updated
+    socket.on("transactionUpdated", (updatedTransaction) => {
+      console.log("Received transactionUpdated event:", updatedTransaction);
+      refetch(); // Refetch transactions
+    });
+
+    socket.on("connect", () => {
+      console.log("Socket.IO connected in Profile:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket.IO disconnected in Profile");
     });
 
     return () => {
       socket.off("transactionUpdated");
+      socket.off("connect");
+      socket.off("disconnect");
     };
   }, [refetch]);
 
@@ -50,6 +60,8 @@ const Profile = () => {
         Error loading transactions: {error?.data?.message || "Unknown error"}
       </div>
     );
+
+  console.log("User Transactions:", transactions); // Debug transactions
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
