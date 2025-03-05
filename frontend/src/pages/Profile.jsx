@@ -21,7 +21,7 @@ const Profile = () => {
   useEffect(() => {
     socket.on("transactionUpdated", (updatedTransaction) => {
       console.log("Received transactionUpdated event:", updatedTransaction);
-      refetch(); // Refetch transactions
+      refetch();
     });
 
     socket.on("connect", () => {
@@ -61,7 +61,7 @@ const Profile = () => {
       </div>
     );
 
-  console.log("User Transactions:", transactions); // Debug transactions
+  console.log("User Transactions:", transactions);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">

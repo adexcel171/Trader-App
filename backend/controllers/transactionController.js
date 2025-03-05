@@ -10,10 +10,10 @@ const createTransaction = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Use provided userName or default to "guest" if no authenticated user
+  // Use provided userName or default to authenticated user's username or "guest"
   const transactionData = {
     userId: req.user?._id || null,
-    userName: userName || req.user?.name || "guest",
+    userName: userName || req.user?.username || "guest", // Use username
     cryptoName,
     quantity,
     totalAmount,
@@ -67,19 +67,25 @@ const getUserTransactions = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
-  // Fetch transactions by userId or userName (for guest transactions)
+  // Debug: Log req.user to verify fields
+  console.log("req.user in getUserTransactions:", req.user);
+
+  // Fetch transactions by userId or username (for guest transactions)
   const transactions = await Transaction.find({
     $or: [
       { userId: req.user._id }, // Authenticated user's transactions
-      { userId: null, userName: req.user.name }, // Guest transactions tied to this user's name
+      { userId: null, userName: req.user.username }, // Guest transactions tied to username
     ],
   });
+
+  // Debug: Log fetched transactions
+  console.log("Fetched transactions:", transactions);
 
   res.status(200).json(transactions || []);
 });
 
 const getAllTransactions = asyncHandler(async (req, res) => {
-  // Optional: Restrict to admins
+  // Restrict to admins
   if (!req.user || !req.user.isAdmin) {
     return res
       .status(403)
@@ -88,7 +94,7 @@ const getAllTransactions = asyncHandler(async (req, res) => {
 
   const transactions = await Transaction.find({}).populate(
     "userId",
-    "name email"
+    "username email"
   );
   res.status(200).json(transactions || []);
 });
