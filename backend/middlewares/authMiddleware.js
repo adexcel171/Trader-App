@@ -5,17 +5,26 @@ const asyncHandler = require("./asyncHandler.js");
 const authenticate = asyncHandler(async (req, res, next) => {
   let token;
 
-  // Read JWT from the 'jwt' cookie
-  token = req.cookies.jwt;
+  // Check for Bearer token in Authorization header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
   if (!token) {
     res.status(401);
-    throw new Error("Not authorized, no token.");
+    throw new Error("Not authorized, no token provided.");
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.userId).select("-password");
+    req.user = await User.findById(decoded.userId).select("-password"); // Use decoded.userId
+    if (!req.user) {
+      res.status(401);
+      throw new Error("Not authorized, user not found.");
+    }
     next();
   } catch (error) {
     res.status(401);
