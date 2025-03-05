@@ -6,10 +6,10 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth?.userInfo?.token; // Safely access token
+      const token = getState().auth?.userInfo?.token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
-        console.log("Token sent:", token); // Debug log
+        console.log("Sending request with token:", token); // Debug log
       } else {
         console.log("No token found in Redux state"); // Debug log
       }

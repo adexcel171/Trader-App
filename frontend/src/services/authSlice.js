@@ -15,7 +15,7 @@ const authSlice = createSlice({
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
       const expirationTime = new Date().getTime() + 30 * 24 * 60 * 60 * 1000; // 30 days
       localStorage.setItem("expirationTime", expirationTime);
-      console.log("Token stored:", action.payload.token); // Debug log
+      console.log("Stored userInfo with token:", action.payload.token); // Debug log
     },
     logout: (state) => {
       state.userInfo = null;

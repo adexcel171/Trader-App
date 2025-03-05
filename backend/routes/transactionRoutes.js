@@ -14,12 +14,12 @@ const {
 router
   .route("/")
   .post(authenticate, createTransaction)
-  .get(authenticate, authorizeAdmin, getAllTransactions); // Added authorizeAdmin for admin-only access
+  .get(authenticate, authorizeAdmin, getAllTransactions);
 
 router.route("/mytransactions").get(authenticate, getUserTransactions);
 
 router
   .route("/:id/status")
-  .put(authenticate, authorizeAdmin, updateTransactionStatus); // Added authorizeAdmin
+  .put(authenticate, authorizeAdmin, updateTransactionStatus);
 
 module.exports = router;
