@@ -32,10 +32,12 @@ const Profile = () => {
     error: adminError,
     refetch: refetchAdmin,
   } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
-  const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
+  // Safely handle data structure
   const data = userInfo?.isAdmin ? adminData : userData;
-  const transactions = data?.transactions || [];
+  const transactions = Array.isArray(data?.transactions)
+    ? data.transactions
+    : [];
   const totalPages = data?.totalPages || 0;
   const isLoading = userInfo?.isAdmin ? adminLoading : userLoading;
   const error = userInfo?.isAdmin ? adminError : userError;
@@ -92,6 +94,10 @@ const Profile = () => {
         Error loading transactions: {error?.data?.message || "Unknown error"}
       </div>
     );
+
+  // Log for debugging
+  console.log("Profile data:", data);
+  console.log("Transactions:", transactions);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
@@ -204,7 +210,7 @@ const Profile = () => {
                             onClick={() =>
                               handleUpdateStatus(transaction._id, "delivered")
                             }
-                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all"
+                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
                           >
                             Mark Delivered
                           </button>
