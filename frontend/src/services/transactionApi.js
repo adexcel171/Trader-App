@@ -9,14 +9,11 @@ export const apiSlice = createApi({
       const token = getState().auth?.userInfo?.token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
-        console.log("Sending request with token:", token); // Debug log
-      } else {
-        console.log("No token found in Redux state"); // Debug log
       }
       return headers;
     },
   }),
-  tagTypes: ["Transaction"],
+  tagTypes: ["Transaction", "User"],
   endpoints: () => ({}),
 });
 

@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const Transaction = require("../models/Transaction"); // Adjust path
+const Transaction = require("../models/Transaction");
 
 const createTransaction = asyncHandler(async (req, res) => {
   const { cryptoName, quantity, totalAmount, type } = req.body;

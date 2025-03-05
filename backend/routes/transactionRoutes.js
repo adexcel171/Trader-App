@@ -15,9 +15,7 @@ router
   .route("/")
   .post(authenticate, createTransaction)
   .get(authenticate, authorizeAdmin, getAllTransactions);
-
 router.route("/mytransactions").get(authenticate, getUserTransactions);
-
 router
   .route("/:id/status")
   .put(authenticate, authorizeAdmin, updateTransactionStatus);

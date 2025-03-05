@@ -1,7 +1,6 @@
 import { apiSlice } from "../apiSlice";
 import { USERS_URL } from "../../constant";
 
-// Export as `userApi`
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -23,9 +22,6 @@ export const userApi = apiSlice.injectEndpoints({
         url: `${USERS_URL}/logout`,
         method: "POST",
       }),
-      onError: (error) => {
-        console.error("Logout failed:", error);
-      },
     }),
     profile: builder.mutation({
       query: (data) => ({

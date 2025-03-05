@@ -1,14 +1,12 @@
-// backend/models/Transaction.js
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema(
   {
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    userName: { type: String, required: true },
     cryptoName: { type: String, required: true },
     quantity: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
@@ -18,8 +16,6 @@ const transactionSchema = new mongoose.Schema(
       default: "pending",
     },
     type: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    lastModified: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
