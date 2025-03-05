@@ -1,23 +1,21 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import { userApiSlice } from "../services/userApi";
-import { transactionApiSlice } from "../services/transactionApi";
-import { cryptoApi, useAddCryptoMutation } from "../services/cryptoApi";
-import authReducer from "../services/authSlice";
+import authReducer from "../services/authSlice"; // Adjust path to your authSlice
+import { userApi } from "../services/userApi"; // Correct import
+
+import { cryptoApi } from "../services/cryptoApi"; // Adjust path
+import { transactionApi } from "../services/transactionApi"; // Adjust path
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
-    [userApiSlice.reducerPath]: userApiSlice.reducer,
-    [transactionApiSlice.reducerPath]: transactionApiSlice.reducer,
-    [cryptoApi.reducerPath]: cryptoApi.reducer,
+    auth: authReducer, // Ensure this matches your authSlice export
+    [userApi.reducerPath]: userApi.reducer, // RTK Query reducer for userApi
+    [cryptoApi.reducerPath]: cryptoApi.reducer, // RTK Query reducer for cryptoApi
+    [transactionApi.reducerPath]: transactionApi.reducer, // RTK Query reducer for transactionApi
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      userApiSlice.middleware,
+      userApi.middleware,
       cryptoApi.middleware,
-      transactionApiSlice.middleware
+      transactionApi.middleware
     ),
 });
-
-setupListeners(store.dispatch);

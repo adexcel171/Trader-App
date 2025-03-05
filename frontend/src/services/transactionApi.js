@@ -1,7 +1,8 @@
 import { apiSlice } from "../apiSlice";
 import { BASE_URL } from "../../constant";
 
-export const transactionApiSlice = apiSlice.injectEndpoints({
+// Export as `transactionApi`
+export const transactionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createTransaction: builder.mutation({
       query: (transaction) => ({
@@ -47,4 +48,4 @@ export const {
   useGetAllTransactionsQuery,
   useUpdateTransactionStatusMutation,
   useDeleteTransactionMutation,
-} = transactionApiSlice;
+} = transactionApi;
