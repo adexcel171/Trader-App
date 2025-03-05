@@ -1,8 +1,7 @@
-// src/pages/UserActivities.js
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useGetUserTransactionsQuery } from "../services/transactionApi";
-import socket from "../services/socket"; // Assuming you have socket setup
+import socket from "../services/socket";
 
 const UserActivities = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -10,25 +9,28 @@ const UserActivities = () => {
     data: transactions,
     isLoading,
     error,
+    refetch, // Add refetch from RTK Query
   } = useGetUserTransactionsQuery();
 
-  React.useEffect(() => {
-    socket.on("transactionUpdated", (updatedTransaction) => {
-      // Update local state or refetch if needed
+  useEffect(() => {
+    socket.on("transactionUpdated", () => {
+      refetch(); // Refetch transactions when updated
     });
 
     return () => {
       socket.off("transactionUpdated");
     };
-  }, []);
+  }, [refetch]);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading transactions</div>;
+  if (error) return <div>Error loading transactions: {error.message}</div>;
 
-  const userTransactions =
-    transactions?.filter(
-      (transaction) => transaction.userName === userInfo?.name
-    ) || [];
+  // Log for debugging
+  console.log("UserInfo:", userInfo);
+  console.log("Transactions from API:", transactions);
+
+  // No need to filter client-side since backend already filters by userId
+  const userTransactions = transactions || [];
 
   return (
     <div
@@ -158,7 +160,7 @@ const UserActivities = () => {
                       borderBottom: "1px solid #e5e7eb",
                     }}
                   >
-                    {new Date(transaction.date).toLocaleString()}
+                    {new Date(transaction.createdAt).toLocaleString()}
                   </td>
                 </tr>
               ))}
