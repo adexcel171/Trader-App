@@ -1,13 +1,17 @@
-import { fetchBaseQuery, createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../constant";
 
-const baseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL,
-  credentials: "include", // Include credentials with every request
-});
-
 export const apiSlice = createApi({
-  baseQuery,
-  tagTypes: ["User", "Category"],
-  endpoints: () => ({}), // To be extended by other slices
+  baseQuery: fetchBaseQuery({
+    baseUrl: BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.userInfo?.token;
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+    credentials: "include",
+  }),
+  endpoints: () => ({}),
 });

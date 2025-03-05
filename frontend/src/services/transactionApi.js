@@ -1,63 +1,42 @@
-// src/services/transactionApi.js
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { apiSlice } from "../apiSlice";
+import { BASE_URL } from "../../constant";
 
-export const transactionApi = createApi({
-  reducerPath: "transactionApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/transactions",
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.userInfo?.token;
-      console.log("Token in prepareHeaders:", token); // Debugging
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found in state.auth.userInfo");
-      }
-      return headers;
-    },
-    credentials: "include", // Include if using cookies for authentication
-  }),
-  tagTypes: ["Transaction"],
+export const transactionApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createTransaction: builder.mutation({
       query: (transaction) => ({
-        url: "",
+        url: `${BASE_URL}/api/transactions`,
         method: "POST",
         body: transaction,
       }),
       invalidatesTags: ["Transaction"],
-      transformErrorResponse: (response, meta, arg) => {
-        console.error("Error creating transaction:", response);
-        return response.data?.message || "Failed to create transaction";
-      },
     }),
     getUserTransactions: builder.query({
-      query: () => "/mytransactions",
+      query: () => ({
+        url: `${BASE_URL}/api/transactions/mytransactions`,
+      }),
       providesTags: ["Transaction"],
-      transformErrorResponse: (response) => {
-        console.error("Error fetching user transactions:", response);
-        return response.data?.message || "Failed to fetch user transactions";
-      },
     }),
     getAllTransactions: builder.query({
-      query: () => "",
+      query: () => ({
+        url: `${BASE_URL}/api/transactions`,
+      }),
       providesTags: ["Transaction"],
-      transformErrorResponse: (response) => {
-        console.error("Error fetching all transactions:", response);
-        return response.data?.message || "Failed to fetch all transactions";
-      },
     }),
     updateTransactionStatus: builder.mutation({
       query: ({ id, status }) => ({
-        url: `/${id}/status`,
+        url: `${BASE_URL}/api/transactions/${id}/status`,
         method: "PUT",
         body: { status },
       }),
       invalidatesTags: ["Transaction"],
-      transformErrorResponse: (response) => {
-        console.error("Error updating transaction status:", response);
-        return response.data?.message || "Failed to update transaction status";
-      },
+    }),
+    deleteTransaction: builder.mutation({
+      query: (id) => ({
+        url: `${BASE_URL}/api/transactions/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Transaction"],
     }),
   }),
 });
@@ -67,4 +46,5 @@ export const {
   useGetUserTransactionsQuery,
   useGetAllTransactionsQuery,
   useUpdateTransactionStatusMutation,
-} = transactionApi;
+  useDeleteTransactionMutation,
+} = transactionApiSlice;
