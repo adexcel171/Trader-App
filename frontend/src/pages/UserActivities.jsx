@@ -11,7 +11,7 @@ const UserActivities = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc"); // desc for latest first
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const { data, isLoading, error, refetch } = useGetUserTransactionsQuery({
     page,
@@ -21,8 +21,10 @@ const UserActivities = () => {
     search,
   });
 
-  const transactions = data?.transactions || [];
-  const totalPages = data?.totalPages || 0;
+  const transactions = Array.isArray(data?.transactions)
+    ? data.transactions
+    : [];
+  const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
 
   useEffect(() => {
     socket.on("transactionUpdated", () => {
@@ -35,15 +37,23 @@ const UserActivities = () => {
   }, [refetch]);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading transactions: {error.message}</div>;
+  if (error)
+    return (
+      <div>Error loading transactions: {error?.message || "Unknown error"}</div>
+    );
+
+  console.log("UserActivities data:", data);
+  console.log("Transactions:", transactions);
 
   const csvData = transactions.map((t) => ({
-    Crypto: t.cryptoName,
-    Quantity: t.quantity,
-    "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
-    Status: t.status,
-    User: t.userId?.email || t.userId?.username || t.userName,
-    Date: new Date(t.createdAt).toLocaleString(),
+    Crypto: t.cryptoName || "N/A",
+    Quantity: t.quantity || 0,
+    "Total Amount": t.totalAmount
+      ? `₦${t.totalAmount.toLocaleString()}`
+      : "N/A",
+    Status: t.status || "N/A",
+    User: t.userId?.email || t.userId?.username || t.userName || "Unknown",
+    Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
 
   return (
@@ -207,7 +217,7 @@ const UserActivities = () => {
                         borderBottom: "1px solid #e5e7eb",
                       }}
                     >
-                      {transaction.cryptoName}
+                      {transaction.cryptoName || "N/A"}
                     </td>
                     <td
                       style={{
@@ -215,7 +225,7 @@ const UserActivities = () => {
                         borderBottom: "1px solid #e5e7eb",
                       }}
                     >
-                      {transaction.quantity}
+                      {transaction.quantity || 0}
                     </td>
                     <td
                       style={{
@@ -223,7 +233,9 @@ const UserActivities = () => {
                         borderBottom: "1px solid #e5e7eb",
                       }}
                     >
-                      ₦{transaction.totalAmount.toLocaleString()}
+                      {transaction.totalAmount
+                        ? `₦${transaction.totalAmount.toLocaleString()}`
+                        : "N/A"}
                     </td>
                     <td
                       style={{
@@ -245,7 +257,7 @@ const UserActivities = () => {
                               : "#15803d",
                         }}
                       >
-                        {transaction.status}
+                        {transaction.status || "N/A"}
                       </span>
                     </td>
                     <td
@@ -256,7 +268,8 @@ const UserActivities = () => {
                     >
                       {transaction.userId?.email ||
                         transaction.userId?.username ||
-                        transaction.userName}
+                        transaction.userName ||
+                        "Unknown"}
                     </td>
                     <td
                       style={{
@@ -264,7 +277,9 @@ const UserActivities = () => {
                         borderBottom: "1px solid #e5e7eb",
                       }}
                     >
-                      {new Date(transaction.createdAt).toLocaleString()}
+                      {transaction.createdAt
+                        ? new Date(transaction.createdAt).toLocaleString()
+                        : "N/A"}
                     </td>
                   </tr>
                 ))}

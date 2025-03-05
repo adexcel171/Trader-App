@@ -17,7 +17,7 @@ const Profile = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc"); // desc for latest first
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const queryParams = { page, limit, startDate, endDate, search };
   const {
@@ -33,12 +33,12 @@ const Profile = () => {
     refetch: refetchAdmin,
   } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
 
-  // Safely handle data structure
+  // Robust data handling
   const data = userInfo?.isAdmin ? adminData : userData;
   const transactions = Array.isArray(data?.transactions)
     ? data.transactions
     : [];
-  const totalPages = data?.totalPages || 0;
+  const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
   const isLoading = userInfo?.isAdmin ? adminLoading : userLoading;
   const error = userInfo?.isAdmin ? adminError : userError;
   const refetch = userInfo?.isAdmin ? refetchAdmin : refetchUser;
@@ -79,12 +79,14 @@ const Profile = () => {
   };
 
   const csvData = transactions.map((t) => ({
-    Crypto: t.cryptoName,
-    Quantity: t.quantity,
-    "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
-    Status: t.status,
-    User: t.userId?.email || t.userId?.username || t.userName,
-    Date: new Date(t.createdAt).toLocaleString(),
+    Crypto: t.cryptoName || "N/A",
+    Quantity: t.quantity || 0,
+    "Total Amount": t.totalAmount
+      ? `₦${t.totalAmount.toLocaleString()}`
+      : "N/A",
+    Status: t.status || "N/A",
+    User: t.userId?.email || t.userId?.username || t.userName || "Unknown",
+    Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
 
   if (isLoading) return <div>Loading...</div>;
@@ -95,7 +97,6 @@ const Profile = () => {
       </div>
     );
 
-  // Log for debugging
   console.log("Profile data:", data);
   console.log("Transactions:", transactions);
 
@@ -174,13 +175,15 @@ const Profile = () => {
                 {transactions.map((transaction) => (
                   <tr key={transaction._id} className="hover:bg-gray-50">
                     <td className="py-2 px-4 border-b">
-                      {transaction.cryptoName}
+                      {transaction.cryptoName || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b">
-                      {transaction.quantity}
+                      {transaction.quantity || 0}
                     </td>
                     <td className="py-2 px-4 border-b">
-                      ₦{transaction.totalAmount.toLocaleString()}
+                      {transaction.totalAmount
+                        ? `₦${transaction.totalAmount.toLocaleString()}`
+                        : "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b">
                       <span
@@ -192,16 +195,19 @@ const Profile = () => {
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {transaction.status}
+                        {transaction.status || "N/A"}
                       </span>
                     </td>
                     <td className="py-2 px-4 border-b">
                       {transaction.userId?.email ||
                         transaction.userId?.username ||
-                        transaction.userName}
+                        transaction.userName ||
+                        "Unknown"}
                     </td>
                     <td className="py-2 px-4 border-b">
-                      {new Date(transaction.createdAt).toLocaleString()}
+                      {transaction.createdAt
+                        ? new Date(transaction.createdAt).toLocaleString()
+                        : "N/A"}
                     </td>
                     {userInfo?.isAdmin && (
                       <td className="py-2 px-4 border-b">
