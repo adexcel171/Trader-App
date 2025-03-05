@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import socket from "../services/socket";
 import { useSelector } from "react-redux";
 import { useCreateTransactionMutation } from "../services/transactionApi";
 
+// Crypto logos
 const cryptoImages = {
   Bitcoin: "https://cryptologos.cc/logos/bitcoin-btc-logo.png",
   Ethereum:
@@ -23,8 +25,11 @@ const cryptoImages = {
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
 
-const FALLBACK_IMAGE_URL = "https://placehold.co/48x48";
+// Fallback image (use a reliable URL or local asset)
+const FALLBACK_IMAGE_URL = "https://placehold.co/48x48"; // Reliable placeholder service
+// Alternatively, use a local asset: "/images/fallback.png"
 
+// Animation variants
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: (i) => ({
@@ -45,16 +50,16 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const [imageSrc, setImageSrc] = useState(
     cryptoImages[crypto.name] || FALLBACK_IMAGE_URL
   );
-  const [hasFailed, setHasFailed] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false); // Track if image load failed
 
   useEffect(() => {
     if (inView) controls.start("visible");
   }, [controls, inView]);
 
-  const handleImageError = () => {
+  const handleImageError = (e) => {
     if (!hasFailed) {
       setHasFailed(true);
-      setImageSrc(FALLBACK_IMAGE_URL);
+      setImageSrc(FALLBACK_IMAGE_URL); // Set fallback only once
     }
   };
 
@@ -113,9 +118,9 @@ const Home = () => {
   const [filteredCryptos, setFilteredCryptos] = useState([]);
   const adminWhatsAppBase = "https://wa.me/2348119223162?text=";
 
-  const authState = useSelector((state) => state.auth);
-  const userInfo = authState?.userInfo || null;
-  const [createTransaction] = useCreateTransactionMutation();
+  const { userInfo } = useSelector((state) => state.auth);
+  const [createTransaction, { isLoading: isCreatingTransaction }] =
+    useCreateTransactionMutation();
 
   useEffect(() => {
     if (cryptos) {
@@ -132,23 +137,27 @@ const Home = () => {
   }, [cryptos, searchQuery, sortBy]);
 
   useEffect(() => {
-    socket.on("cryptoAdded", (newCrypto) =>
-      setFilteredCryptos((prev) => [...prev, newCrypto])
-    );
-    socket.on("cryptoUpdated", (updatedCrypto) =>
+    socket.on("cryptoAdded", (newCrypto) => {
+      setFilteredCryptos((prev) => [...prev, newCrypto]);
+    });
+    socket.on("cryptoUpdated", (updatedCrypto) => {
       setFilteredCryptos((prev) =>
         prev.map((crypto) =>
           crypto._id === updatedCrypto._id ? updatedCrypto : crypto
         )
-      )
-    );
-    socket.on("cryptoDeleted", (deletedCryptoId) =>
+      );
+    });
+    socket.on("cryptoDeleted", (deletedCryptoId) => {
       setFilteredCryptos((prev) =>
         prev.filter((crypto) => crypto._id !== deletedCryptoId)
-      )
-    );
-    socket.on("transactionCreated", () => {});
-    socket.on("transactionUpdated", () => {});
+      );
+    });
+    socket.on("transactionCreated", () => {
+      // Optionally refetch cryptos or notify user
+    });
+    socket.on("transactionUpdated", () => {
+      // Optionally refetch cryptos or notify user
+    });
 
     return () => {
       socket.off("cryptoAdded");
@@ -196,11 +205,23 @@ const Home = () => {
           </div>
           <div class="space-y-2">
             <label class="block text-sm text-gray-700">Quantity to Sell</label>
-            <input id="swal-quantity" type="number" placeholder="Enter quantity" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="0" step="0.01" />
+            <input
+              id="swal-quantity"
+              type="number"
+              placeholder="Enter quantity"
+              class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              min="0"
+              step="0.01"
+            />
           </div>
           <div class="space-y-2">
             <label class="block text-sm text-gray-700">Total Amount</label>
-            <input id="swal-total-amount" type="text" readonly class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none" />
+            <input
+              id="swal-total-amount"
+              type="text"
+              readonly
+              class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
+            />
           </div>
           <button id="swal-sell-button" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
             Sell ${crypto.name}
@@ -245,19 +266,25 @@ const Home = () => {
           };
 
           try {
+            console.log("Creating transaction:", transaction);
             await createTransaction(transaction).unwrap();
+
             const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
               crypto.name
             )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
               userInfo.username
             }`;
             window.open(`${adminWhatsAppBase}${message}`, "_blank");
+
             Swal.fire(
               "Success!",
               `Your request to sell ${quantity} ${crypto.name} has been submitted.`,
               "success"
-            ).then(() => Swal.close());
+            ).then(() => {
+              Swal.close();
+            });
           } catch (error) {
+            console.error("Transaction error:", error);
             Swal.fire(
               "Error",
               error?.data?.message || "Failed to create transaction",
@@ -274,13 +301,17 @@ const Home = () => {
     });
   };
 
-  if (isError)
+  if (isError) {
     return (
       <div className="text-center py-10 text-red-600">
         <p>Failed to load cryptocurrencies. Please try again later.</p>
       </div>
     );
-  if (isLoading) return <Loader />;
+  }
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">

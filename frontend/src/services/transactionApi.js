@@ -1,27 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { apiSlice } from "../apiSlice";
 import { BASE_URL } from "../../constant";
 
-export const apiSlice = createApi({
-  reducerPath: "api",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth?.userInfo?.token;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["Transaction", "User"],
-  endpoints: () => ({}),
-});
-
+// Export as `transactionApi`
 export const transactionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createTransaction: builder.mutation({
       query: (transaction) => ({
-        url: `/api/transactions`,
+        url: `${BASE_URL}/api/transactions`,
         method: "POST",
         body: transaction,
       }),
@@ -29,19 +14,19 @@ export const transactionApi = apiSlice.injectEndpoints({
     }),
     getUserTransactions: builder.query({
       query: () => ({
-        url: `/api/transactions/mytransactions`,
+        url: `${BASE_URL}/api/transactions/mytransactions`,
       }),
       providesTags: ["Transaction"],
     }),
     getAllTransactions: builder.query({
       query: () => ({
-        url: `/api/transactions`,
+        url: `${BASE_URL}/api/transactions`,
       }),
       providesTags: ["Transaction"],
     }),
     updateTransactionStatus: builder.mutation({
       query: ({ id, status }) => ({
-        url: `/api/transactions/${id}/status`,
+        url: `${BASE_URL}/api/transactions/${id}/status`,
         method: "PUT",
         body: { status },
       }),
@@ -49,7 +34,7 @@ export const transactionApi = apiSlice.injectEndpoints({
     }),
     deleteTransaction: builder.mutation({
       query: (id) => ({
-        url: `/api/transactions/${id}`,
+        url: `${BASE_URL}/api/transactions/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Transaction"],
