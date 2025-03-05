@@ -11,6 +11,7 @@ const UserActivities = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc"); // desc for latest first
 
   const { data, isLoading, error, refetch } = useGetUserTransactionsQuery({
     page,
@@ -41,7 +42,7 @@ const UserActivities = () => {
     Quantity: t.quantity,
     "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
     Status: t.status,
-    User: t.userId?.email || t.userId?.username || t.userName, // Updated
+    User: t.userId?.email || t.userId?.username || t.userName,
     Date: new Date(t.createdAt).toLocaleString(),
   }));
 
@@ -100,6 +101,18 @@ const UserActivities = () => {
               borderRadius: "0.25rem",
             }}
           />
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={{
+              padding: "0.5rem",
+              border: "1px solid #e5e7eb",
+              borderRadius: "0.25rem",
+            }}
+          >
+            <option value="desc">Latest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${

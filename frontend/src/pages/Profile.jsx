@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetUserTransactionsQuery,
+  useGetAllTransactionsQuery,
   useUpdateTransactionStatusMutation,
 } from "../services/transactionApi";
 import { toast } from "react-toastify";
@@ -16,18 +17,29 @@ const Profile = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc"); // desc for latest first
 
-  const { data, isLoading, error, refetch } = useGetUserTransactionsQuery({
-    page,
-    limit,
-    startDate,
-    endDate,
-    search,
-  });
+  const queryParams = { page, limit, startDate, endDate, search };
+  const {
+    data: userData,
+    isLoading: userLoading,
+    error: userError,
+    refetch: refetchUser,
+  } = useGetUserTransactionsQuery(queryParams);
+  const {
+    data: adminData,
+    isLoading: adminLoading,
+    error: adminError,
+    refetch: refetchAdmin,
+  } = useGetAllTransactionsQuery(queryParams, { skip: !userInfo?.isAdmin });
   const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
+  const data = userInfo?.isAdmin ? adminData : userData;
   const transactions = data?.transactions || [];
   const totalPages = data?.totalPages || 0;
+  const isLoading = userInfo?.isAdmin ? adminLoading : userLoading;
+  const error = userInfo?.isAdmin ? adminError : userError;
+  const refetch = userInfo?.isAdmin ? refetchAdmin : refetchUser;
 
   useEffect(() => {
     socket.on("transactionUpdated", (updatedTransaction) => {
@@ -69,7 +81,7 @@ const Profile = () => {
     Quantity: t.quantity,
     "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
     Status: t.status,
-    User: t.userId?.email || t.userId?.username || t.userName, // Updated
+    User: t.userId?.email || t.userId?.username || t.userName,
     Date: new Date(t.createdAt).toLocaleString(),
   }));
 
@@ -113,6 +125,14 @@ const Profile = () => {
             onChange={(e) => setEndDate(e.target.value)}
             className="p-2 border rounded"
           />
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="desc">Latest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${
@@ -184,7 +204,7 @@ const Profile = () => {
                             onClick={() =>
                               handleUpdateStatus(transaction._id, "delivered")
                             }
-                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all"
                           >
                             Mark Delivered
                           </button>

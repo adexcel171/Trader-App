@@ -72,14 +72,12 @@ const getUserTransactions = asyncHandler(async (req, res) => {
     ],
   };
 
-  // Date filtering
   if (startDate || endDate) {
     query.createdAt = {};
     if (startDate) query.createdAt.$gte = new Date(startDate);
     if (endDate) query.createdAt.$lte = new Date(endDate);
   }
 
-  // Search by cryptoName or userName
   if (search) {
     query.$or = [
       { cryptoName: { $regex: search, $options: "i" } },
@@ -90,8 +88,8 @@ const getUserTransactions = asyncHandler(async (req, res) => {
   const options = {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
-    sort: { createdAt: -1 }, // Newest first
-    populate: { path: "userId", select: "username email" }, // Populate username and email
+    sort: { createdAt: -1 }, // Latest first
+    populate: { path: "userId", select: "username email" },
   };
 
   try {
@@ -116,11 +114,42 @@ const getAllTransactions = asyncHandler(async (req, res) => {
       .json({ message: "Only admins can view all transactions" });
   }
 
-  const transactions = await Transaction.find({}).populate(
-    "userId",
-    "username email"
-  );
-  res.status(200).json(transactions || []);
+  const { page = 1, limit = 10, startDate, endDate, search } = req.query;
+
+  const query = {};
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  if (search) {
+    query.$or = [
+      { cryptoName: { $regex: search, $options: "i" } },
+      { userName: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { createdAt: -1 }, // Latest first
+    populate: { path: "userId", select: "username email" },
+  };
+
+  try {
+    const result = await Transaction.paginate(query, options);
+    res.status(200).json({
+      transactions: result.docs,
+      totalPages: result.totalPages,
+      currentPage: result.page,
+    });
+  } catch (err) {
+    console.error("Error in getAllTransactions:", err);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch transactions", error: err.message });
+  }
 });
 
 module.exports = {

@@ -19,8 +19,9 @@ export const transactionApi = apiSlice.injectEndpoints({
       providesTags: ["Transaction"],
     }),
     getAllTransactions: builder.query({
-      query: () => ({
+      query: ({ page = 1, limit = 10, startDate, endDate, search } = {}) => ({
         url: `${BASE_URL}/api/transactions`,
+        params: { page, limit, startDate, endDate, search },
       }),
       providesTags: ["Transaction"],
     }),
@@ -42,10 +43,21 @@ export const transactionApi = apiSlice.injectEndpoints({
             }
           )
         );
+        const patchAllResult = dispatch(
+          apiSlice.util.updateQueryData(
+            "getAllTransactions",
+            undefined,
+            (draft) => {
+              const transaction = draft.transactions.find((t) => t._id === id);
+              if (transaction) transaction.status = status;
+            }
+          )
+        );
         try {
           await queryFulfilled;
         } catch {
           patchResult.undo();
+          patchAllResult.undo();
         }
       },
     }),
