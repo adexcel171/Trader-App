@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
@@ -25,9 +24,8 @@ const cryptoImages = {
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
 
-// Fallback image (use a reliable URL or local asset)
-const FALLBACK_IMAGE_URL = "https://placehold.co/48x48"; // Reliable placeholder service
-// Alternatively, use a local asset: "/images/fallback.png"
+// Fallback image
+const FALLBACK_IMAGE_URL = "https://placehold.co/48x48";
 
 // Animation variants
 const cardVariants = {
@@ -50,7 +48,7 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const [imageSrc, setImageSrc] = useState(
     cryptoImages[crypto.name] || FALLBACK_IMAGE_URL
   );
-  const [hasFailed, setHasFailed] = useState(false); // Track if image load failed
+  const [hasFailed, setHasFailed] = useState(false);
 
   useEffect(() => {
     if (inView) controls.start("visible");
@@ -59,7 +57,7 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const handleImageError = (e) => {
     if (!hasFailed) {
       setHasFailed(true);
-      setImageSrc(FALLBACK_IMAGE_URL); // Set fallback only once
+      setImageSrc(FALLBACK_IMAGE_URL);
     }
   };
 
@@ -167,139 +165,6 @@ const Home = () => {
       socket.off("transactionUpdated");
     };
   }, []);
-
-  const handleTradeClick = (crypto) => {
-    if (!userInfo) {
-      Swal.fire({
-        title: "Authentication Required",
-        text: "Please log in or register to perform this action.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Log In",
-        cancelButtonText: "Register",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/login";
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          window.location.href = "/register";
-        }
-      });
-      return;
-    }
-
-    Swal.fire({
-      title: `Sell ${crypto.name}`,
-      html: `
-        <div class="space-y-4">
-          <div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
-            <span class="text-sm text-gray-700">Wallet Address:</span>
-            <div class="flex items-center">
-              <span class="text-sm font-mono text-gray-900">${crypto.walletAddress}</span>
-              <button id="swal-copy-button" class="ml-2 p-1 bg-gray-200 rounded hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm text-gray-700">Quantity to Sell</label>
-            <input
-              id="swal-quantity"
-              type="number"
-              placeholder="Enter quantity"
-              class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
-              step="0.01"
-            />
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm text-gray-700">Total Amount</label>
-            <input
-              id="swal-total-amount"
-              type="text"
-              readonly
-              class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
-            />
-          </div>
-          <button id="swal-sell-button" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-            Sell ${crypto.name}
-          </button>
-        </div>
-      `,
-      didOpen: () => {
-        const quantityInput = document.getElementById("swal-quantity");
-        const totalAmountInput = document.getElementById("swal-total-amount");
-
-        quantityInput.addEventListener("input", () => {
-          const quantity = parseFloat(quantityInput.value) || 0;
-          const totalAmount = (quantity * crypto.rate).toLocaleString("en-US", {
-            style: "currency",
-            currency: "NGN",
-          });
-          totalAmountInput.value = totalAmount;
-        });
-
-        document.getElementById("swal-copy-button").onclick = () => {
-          navigator.clipboard.writeText(crypto.walletAddress);
-          Swal.fire(
-            "Copied!",
-            "Wallet address copied to clipboard.",
-            "success"
-          );
-        };
-
-        document.getElementById("swal-sell-button").onclick = async () => {
-          const quantity = parseFloat(quantityInput.value) || 0;
-          if (quantity <= 0) {
-            Swal.fire("Error", "Please enter a valid quantity.", "error");
-            return;
-          }
-
-          const totalAmount = quantity * crypto.rate;
-          const transaction = {
-            cryptoName: crypto.name,
-            quantity,
-            totalAmount,
-            type: "crypto",
-          };
-
-          try {
-            console.log("Creating transaction:", transaction);
-            await createTransaction(transaction).unwrap();
-
-            const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
-              crypto.name
-            )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
-              userInfo.username
-            }`;
-            window.open(`${adminWhatsAppBase}${message}`, "_blank");
-
-            Swal.fire(
-              "Success!",
-              `Your request to sell ${quantity} ${crypto.name} has been submitted.`,
-              "success"
-            ).then(() => {
-              Swal.close();
-            });
-          } catch (error) {
-            console.error("Transaction error:", error);
-            Swal.fire(
-              "Error",
-              error?.data?.message || "Failed to create transaction",
-              "error"
-            );
-          }
-        };
-      },
-      showConfirmButton: false,
-      customClass: {
-        popup: "rounded-lg shadow-xl",
-        htmlContainer: "text-left",
-      },
-    });
-  };
 
   if (isError) {
     return (
