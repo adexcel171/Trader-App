@@ -8,7 +8,7 @@ const http = require("http");
 const initializeSocket = require("./socket/socket");
 const userRoutes = require("./routes/userRoutes.js");
 const transactionRoutes = require("./routes/transactionRoutes");
-
+const cookieParser = require("cookie-parser");
 const app = express();
 
 // ✅ Apply CORS Middleware First
@@ -28,7 +28,7 @@ app.use(
 );
 
 app.use(express.json());
-
+app.use(cookieParser()); // Add this line
 // ✅ Create HTTP Server
 const server = http.createServer(app);
 
