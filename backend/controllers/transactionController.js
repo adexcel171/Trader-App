@@ -5,15 +5,13 @@ const socket = require("../socket/socket");
 const createTransaction = asyncHandler(async (req, res) => {
   const { cryptoName, quantity, totalAmount, type, userName } = req.body;
 
-  // Validate required fields
   if (!cryptoName || !quantity || !totalAmount || !type) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Use provided userName or default to authenticated user's username or "guest"
   const transactionData = {
     userId: req.user?._id || null,
-    userName: userName || req.user?.username || "guest", // Use username
+    userName: userName || req.user?.username || "guest",
     cryptoName,
     quantity,
     totalAmount,
@@ -21,7 +19,6 @@ const createTransaction = asyncHandler(async (req, res) => {
     type,
   };
 
-  // Create the transaction
   const transaction = await Transaction.create(transactionData);
 
   if (transaction) {
@@ -38,7 +35,6 @@ const updateTransactionStatus = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Transaction not found" });
   }
 
-  // Restrict to admins only
   if (!req.user || !req.user.isAdmin) {
     return res
       .status(403)
@@ -58,7 +54,7 @@ const updateTransactionStatus = asyncHandler(async (req, res) => {
   transaction.lastModified = Date.now();
   const updatedTransaction = await transaction.save();
 
-  socket.getIO().emit("transactionUpdated", updatedTransaction);
+  socket.getIO().emit("transactionUpdated", updatedTransaction); // Broadcast to all clients
   res.status(200).json(updatedTransaction);
 });
 
@@ -67,25 +63,45 @@ const getUserTransactions = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
-  // Debug: Log req.user to verify fields
-  console.log("req.user in getUserTransactions:", req.user);
-
-  // Fetch transactions by userId or username (for guest transactions)
-  const transactions = await Transaction.find({
+  const { page = 1, limit = 10, startDate, endDate, search } = req.query;
+  const query = {
     $or: [
-      { userId: req.user._id }, // Authenticated user's transactions
-      { userId: null, userName: req.user.username }, // Guest transactions tied to username
+      { userId: req.user._id },
+      { userId: null, userName: req.user.username },
     ],
+  };
+
+  // Date filtering
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  // Search by cryptoName or userName
+  if (search) {
+    query.$or = [
+      { cryptoName: { $regex: search, $options: "i" } },
+      { userName: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { createdAt: -1 }, // Newest first
+    populate: "userId", // Populate username/email
+  };
+
+  const transactions = await Transaction.paginate(query, options);
+  res.status(200).json({
+    transactions: transactions.docs,
+    totalPages: transactions.totalPages,
+    currentPage: transactions.page,
   });
-
-  // Debug: Log fetched transactions
-  console.log("Fetched transactions:", transactions);
-
-  res.status(200).json(transactions || []);
 });
 
 const getAllTransactions = asyncHandler(async (req, res) => {
-  // Restrict to admins
   if (!req.user || !req.user.isAdmin) {
     return res
       .status(403)

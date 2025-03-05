@@ -1,7 +1,6 @@
 import { apiSlice } from "../apiSlice";
 import { BASE_URL } from "../../constant";
 
-// Export as `transactionApi`
 export const transactionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createTransaction: builder.mutation({
@@ -10,19 +9,20 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         body: transaction,
       }),
-      invalidatesTags: ["Transaction"], // Refetch transactions after creation
+      invalidatesTags: ["Transaction"],
     }),
     getUserTransactions: builder.query({
-      query: () => ({
+      query: ({ page = 1, limit = 10, startDate, endDate, search } = {}) => ({
         url: `${BASE_URL}/api/transactions/mytransactions`,
+        params: { page, limit, startDate, endDate, search },
       }),
-      providesTags: ["Transaction"], // Cache user-specific transactions
+      providesTags: ["Transaction"],
     }),
     getAllTransactions: builder.query({
       query: () => ({
         url: `${BASE_URL}/api/transactions`,
       }),
-      providesTags: ["Transaction"], // Cache all transactions (admin-only)
+      providesTags: ["Transaction"],
     }),
     updateTransactionStatus: builder.mutation({
       query: ({ id, status }) => ({
@@ -30,15 +30,14 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "PUT",
         body: { status },
       }),
-      invalidatesTags: ["Transaction"], // Refetch transactions after status update
-      // Optional: Optimistic update to improve UX (if needed)
+      invalidatesTags: ["Transaction"],
       async onQueryStarted({ id, status }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           apiSlice.util.updateQueryData(
             "getUserTransactions",
             undefined,
             (draft) => {
-              const transaction = draft.find((t) => t._id === id);
+              const transaction = draft.transactions.find((t) => t._id === id);
               if (transaction) transaction.status = status;
             }
           )
@@ -55,7 +54,7 @@ export const transactionApi = apiSlice.injectEndpoints({
         url: `${BASE_URL}/api/transactions/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Transaction"], // Refetch transactions after deletion
+      invalidatesTags: ["Transaction"],
     }),
   }),
 });
