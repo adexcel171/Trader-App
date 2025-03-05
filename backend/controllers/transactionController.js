@@ -38,7 +38,7 @@ const updateTransactionStatus = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Transaction not found" });
   }
 
-  // Check if the user is an admin
+  // Restrict to admins only
   if (!req.user || !req.user.isAdmin) {
     return res
       .status(403)
@@ -79,7 +79,7 @@ const getUserTransactions = asyncHandler(async (req, res) => {
 });
 
 const getAllTransactions = asyncHandler(async (req, res) => {
-  // Optionally restrict this to admins only
+  // Optional: Restrict to admins
   if (!req.user || !req.user.isAdmin) {
     return res
       .status(403)

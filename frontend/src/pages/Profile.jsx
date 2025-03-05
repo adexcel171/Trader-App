@@ -1,12 +1,12 @@
-// src/pages/Profile.js
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetUserTransactionsQuery,
   useUpdateTransactionStatusMutation,
-} from "../services/transactionApi"; // Correct import
+} from "../services/transactionApi";
 import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
+import socket from "../services/socket"; // Import socket for real-time updates
 
 const Profile = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -14,19 +14,32 @@ const Profile = () => {
     data: transactions,
     isLoading,
     error,
+    refetch, // For real-time updates
   } = useGetUserTransactionsQuery();
   const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
+  // Real-time updates via Socket.IO
+  useEffect(() => {
+    socket.on("transactionUpdated", () => {
+      refetch(); // Refetch transactions when updated
+    });
+
+    return () => {
+      socket.off("transactionUpdated");
+    };
+  }, [refetch]);
+
   const handleUpdateStatus = async (id, status) => {
-    if (userInfo?.isAdmin) {
-      try {
-        await updateTransactionStatus({ id, status }).unwrap();
-        toast.success(`Transaction marked as ${status}`);
-      } catch (error) {
-        toast.error(error?.data?.message || "Failed to update status");
-      }
-    } else {
+    if (!userInfo?.isAdmin) {
       toast.error("Only admins can update transaction status");
+      return;
+    }
+
+    try {
+      await updateTransactionStatus({ id, status }).unwrap();
+      toast.success(`Transaction marked as ${status}`);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to update status");
     }
   };
 
@@ -80,25 +93,27 @@ const Profile = () => {
                       className={`px-2 py-1 rounded ${
                         transaction.status === "pending"
                           ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
+                          : transaction.status === "delivered"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {transaction.status}
                     </span>
                   </td>
                   <td className="py-2 px-4 border-b">
-                    {new Date(transaction.date).toLocaleString()}
+                    {new Date(transaction.createdAt).toLocaleString()}
                   </td>
                   {userInfo?.isAdmin && (
                     <td className="py-2 px-4 border-b">
                       {transaction.status === "pending" && (
                         <button
                           onClick={() =>
-                            handleUpdateStatus(transaction._id, "completed")
+                            handleUpdateStatus(transaction._id, "delivered")
                           }
                           className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
                         >
-                          Mark Completed
+                          Mark Delivered
                         </button>
                       )}
                     </td>
