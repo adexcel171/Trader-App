@@ -1,7 +1,7 @@
 const User = require("../models/userModel.js");
 const asyncHandler = require("../middlewares/asyncHandler.js");
 const bcrypt = require("bcryptjs");
-const createToken = require("../utils/createTokens.jsx");
+const createToken = require("../utils/generateToken.js");
 
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
