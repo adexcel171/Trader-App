@@ -1,31 +1,28 @@
-// backend/controllers/transactionController.js
 const asyncHandler = require("express-async-handler");
 const Transaction = require("../models/Transaction");
 const io = require("../socket/socket");
 
 const createTransaction = asyncHandler(async (req, res) => {
-  const { cryptoName, quantity, totalAmount, type } = req.body;
-
-  // Ensure user is authenticated
-  if (!req.user || !req.user._id) {
-    return res.status(401).json({ message: "User not authenticated" });
-  }
+  const { cryptoName, quantity, totalAmount, type, userName } = req.body;
 
   // Validate required fields
   if (!cryptoName || !quantity || !totalAmount || !type) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Create the transaction
-  const transaction = await Transaction.create({
-    userId: req.user._id,
-    userName: req.user.name,
+  // Use provided userName or default to "guest" if no authenticated user
+  const transactionData = {
+    userId: req.user?._id || null, // Optional: null for guests
+    userName: userName || req.user?.name || "guest", // Default to "guest" if no userName or req.user
     cryptoName,
     quantity,
     totalAmount,
     status: "pending",
     type,
-  });
+  };
+
+  // Create the transaction
+  const transaction = await Transaction.create(transactionData);
 
   if (transaction) {
     io.getIO().emit("transactionCreated", transaction);
@@ -35,7 +32,6 @@ const createTransaction = asyncHandler(async (req, res) => {
   }
 });
 
-// Other handlers remain unchanged
 const updateTransactionStatus = asyncHandler(async (req, res) => {
   const transaction = await Transaction.findById(req.params.id);
   if (!transaction) {

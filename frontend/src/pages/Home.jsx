@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
@@ -25,11 +24,8 @@ const cryptoImages = {
   "USD Coin": "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
 };
 
-// Fallback image (use a reliable URL or local asset)
-const FALLBACK_IMAGE_URL = "https://placehold.co/48x48"; // Reliable placeholder service
-// Alternatively, use a local asset: "/images/fallback.png"
+const FALLBACK_IMAGE_URL = "https://placehold.co/48x48";
 
-// Animation variants
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: (i) => ({
@@ -50,7 +46,7 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const [imageSrc, setImageSrc] = useState(
     cryptoImages[crypto.name] || FALLBACK_IMAGE_URL
   );
-  const [hasFailed, setHasFailed] = useState(false); // Track if image load failed
+  const [hasFailed, setHasFailed] = useState(false);
 
   useEffect(() => {
     if (inView) controls.start("visible");
@@ -59,7 +55,7 @@ const CryptoCard = ({ crypto, index, handleTradeClick }) => {
   const handleImageError = (e) => {
     if (!hasFailed) {
       setHasFailed(true);
-      setImageSrc(FALLBACK_IMAGE_URL); // Set fallback only once
+      setImageSrc(FALLBACK_IMAGE_URL);
     }
   };
 
@@ -152,12 +148,8 @@ const Home = () => {
         prev.filter((crypto) => crypto._id !== deletedCryptoId)
       );
     });
-    socket.on("transactionCreated", () => {
-      // Optionally refetch cryptos or notify user
-    });
-    socket.on("transactionUpdated", () => {
-      // Optionally refetch cryptos or notify user
-    });
+    socket.on("transactionCreated", () => {});
+    socket.on("transactionUpdated", () => {});
 
     return () => {
       socket.off("cryptoAdded");
@@ -169,24 +161,6 @@ const Home = () => {
   }, []);
 
   const handleTradeClick = (crypto) => {
-    if (!userInfo) {
-      Swal.fire({
-        title: "Authentication Required",
-        text: "Please log in or register to perform this action.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Log In",
-        cancelButtonText: "Register",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/login";
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          window.location.href = "/register";
-        }
-      });
-      return;
-    }
-
     Swal.fire({
       title: `Sell ${crypto.name}`,
       html: `
@@ -263,6 +237,7 @@ const Home = () => {
             quantity,
             totalAmount,
             type: "crypto",
+            userName: userInfo?.username || "guest", // Send "guest" if no userInfo
           };
 
           try {
@@ -272,7 +247,7 @@ const Home = () => {
             const message = `Hello%2C%20I%20want%20to%20sell%20${encodeURIComponent(
               crypto.name
             )}%20crypto%20at%20the%20rate%20of%20₦${crypto.rate.toLocaleString()}%20for%20${quantity.toLocaleString()}%20units%20(total%20amount%3A%20₦${totalAmount.toLocaleString()})%20by%20${
-              userInfo.username
+              userInfo?.username || "guest"
             }`;
             window.open(`${adminWhatsAppBase}${message}`, "_blank");
 
