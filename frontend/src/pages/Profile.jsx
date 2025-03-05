@@ -7,7 +7,7 @@ import {
 import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
 import socket from "../services/socket";
-import { CSVLink } from "react-csv"; // npm install react-csv
+import { CSVLink } from "react-csv";
 
 const Profile = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -69,7 +69,7 @@ const Profile = () => {
     Quantity: t.quantity,
     "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
     Status: t.status,
-    User: t.userName,
+    User: t.userId?.email || t.userId?.username || t.userName, // Updated
     Date: new Date(t.createdAt).toLocaleString(),
   }));
 
@@ -92,7 +92,6 @@ const Profile = () => {
 
       <h3 className="text-xl font-semibold mb-4">Recent Transactions</h3>
 
-      {/* Filters and Search */}
       <div className="mb-4 flex flex-col gap-2">
         <input
           type="text"
@@ -171,7 +170,9 @@ const Profile = () => {
                       </span>
                     </td>
                     <td className="py-2 px-4 border-b">
-                      {transaction.userName}
+                      {transaction.userId?.email ||
+                        transaction.userId?.username ||
+                        transaction.userName}
                     </td>
                     <td className="py-2 px-4 border-b">
                       {new Date(transaction.createdAt).toLocaleString()}
@@ -196,7 +197,6 @@ const Profile = () => {
             </table>
           </div>
 
-          {/* Pagination */}
           <div className="mt-4 flex justify-between">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}

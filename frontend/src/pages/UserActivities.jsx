@@ -41,7 +41,7 @@ const UserActivities = () => {
     Quantity: t.quantity,
     "Total Amount": `₦${t.totalAmount.toLocaleString()}`,
     Status: t.status,
-    User: t.userName,
+    User: t.userId?.email || t.userId?.username || t.userName, // Updated
     Date: new Date(t.createdAt).toLocaleString(),
   }));
 
@@ -60,7 +60,6 @@ const UserActivities = () => {
         Your Transactions
       </h2>
 
-      {/* Filters and Search */}
       <div
         style={{
           marginBottom: "1rem",
@@ -242,7 +241,9 @@ const UserActivities = () => {
                         borderBottom: "1px solid #e5e7eb",
                       }}
                     >
-                      {transaction.userName}
+                      {transaction.userId?.email ||
+                        transaction.userId?.username ||
+                        transaction.userName}
                     </td>
                     <td
                       style={{
@@ -258,7 +259,6 @@ const UserActivities = () => {
             </table>
           </div>
 
-          {/* Pagination */}
           <div
             style={{
               marginTop: "1rem",
