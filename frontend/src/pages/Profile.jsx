@@ -22,11 +22,18 @@ const Profile = () => {
   const { data, isLoading, error, refetch, isFetching } = userInfo?.isAdmin
     ? useGetAllTransactionsQuery(queryParams)
     : useGetUserTransactionsQuery(queryParams);
+  const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
-  const transactions = Array.isArray(data?.transactions)
-    ? data.transactions
-    : [];
-  const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
+  const [localTransactions, setLocalTransactions] = useState(
+    Array.isArray(data?.transactions) ? data.transactions : []
+  );
+
+  // Sync localTransactions with data when it changes
+  useEffect(() => {
+    setLocalTransactions(
+      Array.isArray(data?.transactions) ? data.transactions : []
+    );
+  }, [data]);
 
   useEffect(() => {
     socket.on("transactionUpdated", () => {
@@ -38,16 +45,42 @@ const Profile = () => {
     };
   }, [refetch]);
 
+  const handleUpdateStatus = async (id, status) => {
+    if (!userInfo?.isAdmin) {
+      toast.error("Only admins can update transaction status");
+      return;
+    }
+
+    // Optimistic update
+    setLocalTransactions((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, status } : t))
+    );
+
+    try {
+      await updateTransactionStatus({ id, status }).unwrap();
+      toast.success(`Transaction marked as ${status}`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } catch (err) {
+      // Revert on failure
+      setLocalTransactions((prev) =>
+        prev.map((t) => (t._id === id ? { ...t, status: "pending" } : t))
+      );
+      toast.error(err?.data?.message || "Failed to update status");
+    }
+  };
+
   if (isLoading || isFetching) return <div>Loading...</div>;
   if (error)
     return (
-      <div>
+      <div className="text-center p-4 text-red-600">
         Error loading transactions:{" "}
         {error?.data?.message || error?.message || "Unknown error"}
       </div>
     );
 
-  const csvData = transactions.map((t) => ({
+  const csvData = localTransactions.map((t) => ({
     Crypto: t.cryptoName || "N/A",
     Quantity: t.quantity || 0,
     "Total Amount": t.totalAmount
@@ -58,86 +91,100 @@ const Profile = () => {
     Date: t.createdAt ? new Date(t.createdAt).toLocaleString() : "N/A",
   }));
 
+  const totalPages = Number.isInteger(data?.totalPages) ? data.totalPages : 0;
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-6 flex items-center">
-        <FaUser className="text-2xl mr-3 text-blue-500" />
-        <h2 className="text-2xl font-bold">
+    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-lg max-w-full mx-auto">
+      <div className="mb-6 flex items-center flex-col sm:flex-row gap-4">
+        <FaUser className="text-2xl sm:text-3xl text-blue-500" />
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center">
           {userInfo?.username || "Guest"}'s Profile
         </h2>
       </div>
 
-      <h3 className="text-xl font-semibold mb-4">Recent Transactions</h3>
+      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center">
+        Recent Transactions
+      </h3>
 
-      <div className="mb-4 flex flex-col gap-2">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
         <input
           type="text"
           placeholder="Search by crypto or user..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="p-2 border rounded"
+          className="w-full sm:w-64 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="p-2 border rounded"
+            className="w-full sm:w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="p-2 border rounded"
+            className="w-full sm:w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <CSVLink
             data={csvData}
             filename={`transactions_${startDate || "all"}_to_${
               endDate || "now"
             }.csv`}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-center"
           >
             Download CSV
           </CSVLink>
         </div>
       </div>
 
-      {transactions.length === 0 ? (
-        <p>No transactions found.</p>
+      {localTransactions.length === 0 ? (
+        <p className="text-center text-gray-500">No transactions found.</p>
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
+            <table className="min-w-full bg-white border border-gray-200 text-sm sm:text-base">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="py-2 px-4 border-b">Crypto</th>
-                  <th className="py-2 px-4 border-b">Quantity</th>
-                  <th className="py-2 px-4 border-b">Total Amount</th>
-                  <th className="py-2 px-4 border-b">Status</th>
-                  <th className="py-2 px-4 border-b">User</th>
-                  <th className="py-2 px-4 border-b">Date</th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">
+                    Crypto
+                  </th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">
+                    Quantity
+                  </th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">
+                    Total Amount
+                  </th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">
+                    Status
+                  </th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">User</th>
+                  <th className="py-2 px-2 sm:px-4 border-b text-left">Date</th>
                   {userInfo?.isAdmin && (
-                    <th className="py-2 px-4 border-b">Actions</th>
+                    <th className="py-2 px-2 sm:px-4 border-b text-left">
+                      Actions
+                    </th>
                   )}
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((transaction) => (
+                {localTransactions.map((transaction) => (
                   <tr key={transaction._id} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b truncate max-w-[100px] sm:max-w-[150px]">
                       {transaction.cryptoName || "N/A"}
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b">
                       {transaction.quantity || 0}
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b truncate max-w-[120px] sm:max-w-[200px]">
                       {transaction.totalAmount
                         ? `₦${transaction.totalAmount.toLocaleString()}`
                         : "N/A"}
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b">
                       <span
-                        className={`px-2 py-1 rounded ${
+                        className={`px-2 py-1 rounded text-xs sm:text-sm ${
                           transaction.status === "pending"
                             ? "bg-yellow-100 text-yellow-800"
                             : transaction.status === "delivered"
@@ -148,25 +195,25 @@ const Profile = () => {
                         {transaction.status || "N/A"}
                       </span>
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b truncate max-w-[100px] sm:max-w-[150px]">
                       {transaction.userId?.email ||
                         transaction.userId?.username ||
                         transaction.userName ||
                         "Unknown"}
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-2 sm:px-4 border-b truncate max-w-[120px] sm:max-w-[200px]">
                       {transaction.createdAt
                         ? new Date(transaction.createdAt).toLocaleString()
                         : "N/A"}
                     </td>
                     {userInfo?.isAdmin && (
-                      <td className="py-2 px-4 border-b">
+                      <td className="py-2 px-2 sm:px-4 border-b">
                         {transaction.status === "pending" && (
                           <button
                             onClick={() =>
                               handleUpdateStatus(transaction._id, "delivered")
                             }
-                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors whitespace-nowrap"
                           >
                             Mark Delivered
                           </button>
@@ -179,21 +226,21 @@ const Profile = () => {
             </table>
           </div>
 
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300 transition-colors"
             >
               Previous
             </button>
-            <span>
+            <span className="text-gray-700">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300 transition-colors"
             >
               Next
             </button>
