@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
 import socket from "../services/socket";
 import { CSVLink } from "react-csv";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -17,11 +18,12 @@ const Profile = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const queryParams = { page, limit, startDate, endDate, search };
   const { data, isLoading, error, refetch, isFetching } = userInfo?.isAdmin
     ? useGetAllTransactionsQuery(queryParams)
-    : useGetUserTransactionsQuery(queryParams);
+    : useGetUserTransactionsQuery(queryParams, { skip: !userInfo }); // Skip query if not logged in
   const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
   const [localTransactions, setLocalTransactions] = useState(
@@ -30,20 +32,24 @@ const Profile = () => {
 
   // Sync localTransactions with data when it changes
   useEffect(() => {
-    setLocalTransactions(
-      Array.isArray(data?.transactions) ? data.transactions : []
-    );
-  }, [data]);
+    if (userInfo) {
+      setLocalTransactions(
+        Array.isArray(data?.transactions) ? data.transactions : []
+      );
+    }
+  }, [data, userInfo]);
 
   useEffect(() => {
-    socket.on("transactionUpdated", () => {
-      refetch();
-    });
+    if (userInfo) {
+      socket.on("transactionUpdated", () => {
+        refetch();
+      });
+    }
 
     return () => {
       socket.off("transactionUpdated");
     };
-  }, [refetch]);
+  }, [refetch, userInfo]);
 
   const handleUpdateStatus = async (id, status) => {
     if (!userInfo?.isAdmin) {
@@ -71,7 +77,28 @@ const Profile = () => {
     }
   };
 
-  if (isLoading || isFetching) return <div>Loading...</div>;
+  // Redirect or block guests
+  if (!userInfo) {
+    return (
+      <div className="p-4 sm:p-6 text-center">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
+          Please Log In
+        </h2>
+        <p className="text-gray-600 mb-4">
+          You need to be logged in to view your transaction history.
+        </p>
+        <button
+          onClick={() => navigate("/login")}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading || isFetching)
+    return <div className="text-center p-4">Loading...</div>;
   if (error)
     return (
       <div className="text-center p-4 text-red-600">
@@ -98,7 +125,7 @@ const Profile = () => {
       <div className="mb-6 flex items-center flex-col sm:flex-row gap-4">
         <FaUser className="text-2xl sm:text-3xl text-blue-500" />
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center">
-          {userInfo?.username || "Guest"}'s Profile
+          {userInfo.username}'s Profile
         </h2>
       </div>
 
@@ -124,7 +151,7 @@ const Profile = () => {
           <input
             type="date"
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full sm:w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <CSVLink
@@ -161,7 +188,7 @@ const Profile = () => {
                   </th>
                   <th className="py-2 px-2 sm:px-4 border-b text-left">User</th>
                   <th className="py-2 px-2 sm:px-4 border-b text-left">Date</th>
-                  {userInfo?.isAdmin && (
+                  {userInfo.isAdmin && (
                     <th className="py-2 px-2 sm:px-4 border-b text-left">
                       Actions
                     </th>
@@ -206,7 +233,7 @@ const Profile = () => {
                         ? new Date(transaction.createdAt).toLocaleString()
                         : "N/A"}
                     </td>
-                    {userInfo?.isAdmin && (
+                    {userInfo.isAdmin && (
                       <td className="py-2 px-2 sm:px-4 border-b">
                         {transaction.status === "pending" && (
                           <button
