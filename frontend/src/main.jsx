@@ -20,6 +20,7 @@ import Register from "./pages/Auth/Register";
 import UserActivities from "./pages/UserActivities";
 import PageNotFound from "./components/pageNotFound";
 
+// Custom Error Boundary Component
 const ErrorBoundary = () => {
   const error = useRouteError();
   console.error("Route error:", error);
@@ -32,34 +33,23 @@ const ErrorBoundary = () => {
   );
 };
 
-const withErrorBoundary = (Component) => {
-  return (props) => {
-    try {
-      console.log(`Rendering ${Component.name} with props:`, props);
-      return <Component {...props} />;
-    } catch (err) {
-      console.error(`Error in ${Component.name}:`, err);
-      throw err;
-    }
-  };
-};
-
+// Define the router without wrapping functions directly
 const router = createBrowserRouter([
   {
     path: "/",
-    element: withErrorBoundary(Layout),
+    element: <Layout />, // Render as JSX
     errorElement: <ErrorBoundary />,
     children: [
-      { path: "/", element: withErrorBoundary(Home) },
-      { path: "/login", element: withErrorBoundary(Login) },
-      { path: "/register", element: withErrorBoundary(Register) },
-      { path: "/dashboard", element: withErrorBoundary(Dashboard) },
-      { path: "/markets", element: withErrorBoundary(Market) },
-      { path: "/portfolio", element: withErrorBoundary(CryptoPortfolio) },
-      { path: "/wallet", element: withErrorBoundary(WalletAccounts) },
-      { path: "/profile", element: withErrorBoundary(Profile) },
-      { path: "/activities", element: withErrorBoundary(UserActivities) },
-      { path: "*", element: withErrorBoundary(PageNotFound) },
+      { path: "/", element: <Home /> },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/markets", element: <Market /> },
+      { path: "/portfolio", element: <CryptoPortfolio /> },
+      { path: "/wallet", element: <WalletAccounts /> },
+      { path: "/profile", element: <Profile /> },
+      { path: "/activities", element: <UserActivities /> },
+      { path: "*", element: <PageNotFound /> },
     ],
   },
 ]);
