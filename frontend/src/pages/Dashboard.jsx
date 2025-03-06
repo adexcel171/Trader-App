@@ -9,9 +9,9 @@ import Loader from "../components/Loader";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSelector, useDispatch } from "react-redux"; // Import useDispatch
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../services/authSlice"; // Import the logout action
+import { logout } from "../services/authSlice";
 
 const Dashboard = () => {
   const [formData, setFormData] = useState({ name: "", rate: "" });
@@ -21,25 +21,22 @@ const Dashboard = () => {
   const [deleteCrypto] = useDeleteCryptoMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
-  const dispatch = useDispatch(); // Initialize dispatch
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redirect if user is not logged in or not an admin
   useEffect(() => {
     if (!userInfo || !userInfo.isAdmin) {
-      navigate("/login"); // Redirect to login page
+      navigate("/login");
     }
   }, [userInfo, navigate]);
 
-  // Show loading spinner while checking authentication
   if (!userInfo || !userInfo.isAdmin) {
-    return <Loader />; // Or a custom "Access Denied" message
+    return <Loader />;
   }
 
-  // Logout function
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
-    navigate("/login"); // Redirect to login page
+    dispatch(logout());
+    navigate("/login");
   };
 
   const handleSubmit = async (e) => {
@@ -115,16 +112,15 @@ const Dashboard = () => {
     return <Loader />;
   }
 
+  // Safeguard cryptos to ensure it’s an array
+  const safeCryptos = Array.isArray(cryptos) ? cryptos : [];
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
-
-      {/* Header */}
       <div className="bg-gradient-to-r text-center from-blue-900 to-gray-600 text-white p-6 rounded-lg mb-8 shadow-lg">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
         <p className="text-lg mt-2">Manage your crypto assets with ease</p>
-        {/* Logout Button */}
         <button
           onClick={handleLogout}
           className="mt-4 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
@@ -132,18 +128,16 @@ const Dashboard = () => {
           Logout
         </button>
       </div>
-
-      {/* Add Crypto Form */}
       <form
         onSubmit={handleSubmit}
         className="bg-white md:flex flex-col justify-between items-center space-x-2 p-6 rounded-xl shadow-md mb-8"
       >
         <h2 className="text-2xl font-bold text-center mb-4">Add New Crypto</h2>
-        <div className="space-y-4 flex flex-col justify-center items-center ">
+        <div className="space-y-4 flex flex-col justify-center items-center">
           <input
             type="text"
             placeholder="Crypto Name"
-            className="w-full p-3 border  md:w-[500px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border md:w-[500px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
@@ -156,16 +150,14 @@ const Dashboard = () => {
           />
           <button
             type="submit"
-            className="w-full p-3 md:w-[500px] bg-gradient-to-r from--900 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="w-full p-3 md:w-[500px] bg-gradient-to-r from-blue-900 to-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
           >
             Add Crypto
           </button>
         </div>
       </form>
-
-      {/* Crypto List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cryptos?.map((crypto) => (
+        {safeCryptos.map((crypto) => (
           <div
             key={crypto._id}
             className="bg-white flex flex-col justify-center items-center p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
@@ -173,15 +165,12 @@ const Dashboard = () => {
             <h3 className="text-xl font-bold text-gray-800">{crypto.name}</h3>
             <p className="text-gray-600 mt-2">Rate: ${crypto.rate}</p>
             <div className="mt-4 flex space-x-2">
-              {/* Edit Button */}
               <button
                 onClick={() => handleEdit(crypto)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
               >
                 Edit
               </button>
-
-              {/* Delete Button */}
               <button
                 onClick={() => handleDelete(crypto._id)}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"

@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../services/authSlice";
@@ -81,11 +80,12 @@ const Navbar = () => {
     }
   };
 
-  // Filter transactions for the logged-in user or all transactions for admin
+  // Safeguard userTransactions to ensure it’s an array
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
   const userTransactions = userInfo
     ? userInfo.isAdmin
-      ? transactions?.slice(0, 3) || [] // Show recent transactions for admin
-      : transactions?.filter((t) => t.userId === userInfo._id).slice(0, 3) || [] // Regular user's transactions
+      ? safeTransactions.slice(0, 3)
+      : safeTransactions.filter((t) => t.userId === userInfo._id).slice(0, 3)
     : [];
 
   const modalVariants = {
@@ -110,7 +110,7 @@ const Navbar = () => {
               { to: "/dashboard", icon: FaChartLine, label: "Dashboard" },
               { to: "/markets", icon: FaChartLine, label: "Markets" },
               { to: "/wallet", icon: FaWallet, label: "Wallet" },
-              { to: "/profile", icon: FaUser, label: "Profile" }, // Always available
+              { to: "/profile", icon: FaUser, label: "Profile" },
               ...(userInfo?.isAdmin
                 ? [
                     {
@@ -139,7 +139,6 @@ const Navbar = () => {
           </nav>
         </div>
 
-        {/* Profile Modal */}
         {isProfileOpen && (
           <motion.div
             className="fixed top-16 right-6 w-80 bg-white text-gray-800 p-6 rounded-xl shadow-2xl z-50 border border-gray-200"

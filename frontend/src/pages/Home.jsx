@@ -119,17 +119,16 @@ const Home = () => {
     useCreateTransactionMutation();
 
   useEffect(() => {
-    if (cryptos) {
-      setFilteredCryptos(
-        cryptos
-          .filter((crypto) =>
-            crypto.name.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-          .sort((a, b) =>
-            sortBy === "rate" ? b.rate - a.rate : a.name.localeCompare(b.name)
-          )
-      );
-    }
+    const safeCryptos = Array.isArray(cryptos) ? cryptos : [];
+    setFilteredCryptos(
+      safeCryptos
+        .filter((crypto) =>
+          crypto.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) =>
+          sortBy === "rate" ? b.rate - a.rate : a.name.localeCompare(b.name)
+        )
+    );
   }, [cryptos, searchQuery, sortBy]);
 
   useEffect(() => {
@@ -237,7 +236,7 @@ const Home = () => {
             quantity,
             totalAmount,
             type: "crypto",
-            userName: userInfo?.username || "guest", // Send "guest" if no userInfo
+            userName: userInfo?.username || "guest",
           };
 
           try {
